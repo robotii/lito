@@ -1,2 +1,2 @@
-# lito
+# Lito
 Lito Programming Language
