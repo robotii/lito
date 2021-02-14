@@ -22,7 +22,7 @@ type ConfigFunc = func(vm *VM) error
 const Version = "0.2.1"
 
 // FileExt stores the default extension
-const FileExt = "github.com/robotii/lito"
+const FileExt = "lito"
 
 // DefaultLibPath is used for overriding vm.libpath build-time.
 var DefaultLibPath string

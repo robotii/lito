@@ -86,7 +86,7 @@ reset:
 		return
 	}
 
-	oprintln("github.com/robotii/lito", version)
+	oprintln("lito", version)
 
 	ivm, err := newIVM(mType)
 	if err != nil {
