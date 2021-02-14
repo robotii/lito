@@ -1,0 +1,147 @@
+class Spec {
+  property :successful
+  get :describes
+
+  def init {
+    @successful = true
+    @describes = []
+  }
+
+  def self.fail {
+    self.instance.fail
+  }
+
+  def fail {
+    @successful = false
+  }
+
+  def self.describe(name) {
+    describes.push Describe.new(name, 0, &block!)
+  }
+
+  def self.instance {
+    @instance ||= Spec.new
+  }
+
+  def self.run {
+    instance.run
+  }
+
+  def self.describes {
+    instance.describes
+  }
+
+  def run {
+    @describes.each {|d|
+      d.run
+    }
+    System.exit ((!Spec.instance.successful).int)
+  }
+}
+
+class Describe {
+  get (
+    :name,
+    :examples,
+    :describes
+  )
+
+  def init(name, indent) {
+    @indent = indent
+    @name = name
+    @describes = []
+    @examples = []
+    @before_hooks = []
+    @after_hooks = []
+    tap &block!
+  }
+
+  def before {
+    @before_hooks.push(block!)
+  }
+
+  def after {
+    @after_hooks.push(block!)
+  }
+
+  def describe(name) {
+    describes.push Describe.new(name, @indent + 2, &block!)
+  }
+
+  def it(name) {
+    examples.push Example.new(name, @indent + 2, &block!)
+  }
+
+  def run {
+    run_examples
+    describes.each {|d|
+      d.run
+    }
+  }
+
+  def run_examples {
+    println " " * @indent + name.string
+    examples.each {|e|
+
+      @before_hooks.each {|before_hook|
+        before_hook.call
+      }
+
+      e.run
+
+      @after_hooks.each {|after_hook|
+        after_hook.call
+      }
+
+      e.print_result
+    }
+  }
+}
+
+class Example {
+  get :name, :result, :subject
+
+  def init(name, indent) {
+    @indent = indent
+    @name = name
+    @result = true
+    @block = block!
+  }
+
+  def expect(subject) {
+    @subject = subject
+    self
+  }
+
+  def to(expectation) {
+    @result = expectation.call(subject)
+  }
+
+  def not_to(expectation) {
+    @result = !expectation.call(subject)
+  }
+
+  def eq(expectation) {
+    Block.new {|n|
+      @actual = n
+      @expect = expectation
+      n == expectation
+    }
+  }
+
+  def run {
+    tap &@block
+  }
+
+  def print_result {
+    output = String.fmt("%sit \"%s\"", " " * @indent, name.string)
+    if !result {
+      output += " (FAILED)"
+      output += String.fmt("\n  expect: %s\n  actual: %s", @expect, @actual)
+      Spec.fail
+    } else {
+      output += " (PASS)"
+    }
+    println output
+  }
+}

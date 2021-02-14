@@ -1,0 +1,13 @@
+c = Channel.new
+
+go {
+    (<-c).call 5
+    println("Done")
+}
+
+c <- (Block.new {|a|
+    println "This has gone through a channel"
+    println a, c
+})
+
+sleep 2

@@ -1,0 +1,19 @@
+def f(from) {
+  i = 0
+  while i < 3 {
+    println(from + ": " + i.string)
+    i += 1
+  }
+}
+
+f("direct")
+
+go {
+  f("go")
+}
+
+go {
+  println("going")
+}
+
+sleep(2)

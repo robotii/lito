@@ -1,0 +1,19 @@
+class Foo {
+  def bar {
+    yield
+  }
+}
+
+a = 100
+i = 10
+b = 1000
+
+f = Foo.new
+
+f.bar {
+  i = 3 * a
+  f.bar {
+    i = 3 + i
+  }
+}
+println(i)

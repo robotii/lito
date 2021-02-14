@@ -1,0 +1,35 @@
+def f(from) {
+  i = 0
+  while i < 3 {
+    println(from + ": " + i.string)
+    i += 1
+  }
+}
+
+c = Channel.new
+wg = WaitGroup.new
+
+wg.add 2
+
+go {
+  println(<- c)
+  f("go")
+  sleep(2)
+  wg.done
+  println("go done")
+}
+
+go {
+  println("going")
+  c <- 10
+  wg.done
+  println("going done")
+}
+
+f("direct")
+
+println "waiting"
+wg.wait
+println "waited"
+
+sleep(2)

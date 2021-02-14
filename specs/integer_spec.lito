@@ -1,0 +1,37 @@
+require("spec")
+
+Spec.describe Integer {
+  describe "times" {
+    it "iterates block when block is provided" {
+      a = []
+      3.times {|i|
+        a.push(i)
+      }
+
+      expect(a) to eq([0, 1, 2])
+    }
+
+    it "yields range when no block is given" {
+      a = try {
+        a = 3.times
+      }
+
+      expect(a).to eq(0...3)
+    }
+  }
+
+  describe "arithmetic operations" {
+    describe "+" {
+      it "adds two numbers" {
+        expect(2 + 2) to eq(4)
+      }
+    }
+    describe "-" {
+      it "subtracts two numbers" {
+        expect(2 - 2) to eq(0)
+      }
+    }
+  }
+}
+
+Spec.run

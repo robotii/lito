@@ -1,0 +1,27 @@
+require("spec")
+
+Spec.describe Spec {
+  describe "comparison" {
+    describe "to eq" {
+      it "compares if two values are equal" {
+        expect(1) to eq(1)
+      }
+    }
+
+    describe "not_to eq" {
+      it "compares if two values are not equal" {
+        expect(1) not_to eq(2)
+      }
+    }
+  }
+
+  describe "indentation" {
+    it "indents four spaces" {
+    }
+    describe "nest another level" {
+      it "indents six spaces" {
+      }
+    }
+  }
+}
+Spec.run

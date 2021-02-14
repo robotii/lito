@@ -1,0 +1,22 @@
+println(switch {
+  case true
+    2
+  default
+    3
+})
+
+println (switch 2 + 2 {
+    case 3
+      "3"
+    case 4
+      "four"
+    default
+      "should not happen"
+})
+
+println(switch {
+  case 2 == 2
+    "Yay"
+  default
+    "Nooooo!"
+})

@@ -1,0 +1,50 @@
+try {
+    println("Hello")
+    3
+} catch {
+    println "catch",44
+}
+
+3 catch(Integer) {|i|
+    println("catch: ok, got: " + i.string)
+}
+
+3 catch(Error) {
+    println "catch: should not happen"
+}
+
+3 catch {
+    println "catch: ok, i suppose"
+} finally {
+    println "finally: we have destroyed the world"
+}
+
+try {
+    println("raising error")
+    raise InternalError.new "Error Message"
+} catch (Error) {|e|
+    println e.message, e.stack, e.type
+    println "Caught error!"
+}
+
+# Nested try catch blocks
+try {
+  try {
+    println("raising error")
+    raise InternalError.new "Error Message"
+  } catch (Error) {|e|
+    println "Caught error!"
+    # Re-raise the error
+    raise e
+  }
+} catch {|e|
+    println e.message, e.stack, e.type
+}
+
+x = try {
+    raise Error.new
+} catch {|e|
+    e.cancel
+}
+
+println x.class # => Error

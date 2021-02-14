@@ -1,0 +1,7 @@
+a = {
+    hello: "goodbye",
+    goodbye: "hello"
+}
+
+println a
+println a.json

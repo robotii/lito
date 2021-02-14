@@ -1,0 +1,26 @@
+class JobPosition {
+  def init(name) {
+    @name = name
+  }
+
+  def name {
+    @name
+  }
+
+  def salary=(salary) {
+    @salary = salary
+  }
+
+  def salary {
+    @salary
+  }
+
+  def self.engineer {
+    new("Engineer")
+  }
+}
+
+job = JobPosition.engineer
+job.salary = 10000
+println(job.name) #=> "Engineer"
+println(job.salary) #=> 10000

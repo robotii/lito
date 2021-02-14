@@ -1,0 +1,11 @@
+println(4)
+println(4.class)
+println(4.metaclass.class)
+println(4 + 4)
+println(4 - 2)
+println(4 * 4)
+println(4/4)
+println(-6)
+
+println Integer.class
+println Integer.metaclass

@@ -1,0 +1,32 @@
+# foreground color
+module ANSI {
+    def self.black()   { return "\033[30m"}
+    def self.red()     { return "\033[31m"}
+    def self.green()   { return "\033[32m"}
+    def self.brown()   { return "\033[33m"}
+    def self.blue()    { return "\033[34m"}
+    def self.magenta() { return "\033[35m"}
+    def self.cyan()    { return "\033[36m"}
+    def self.white()    { return "\033[37m"}
+
+    # background color
+    def self.black_bg()   { return "\033[40m"}
+    def self.red_bg()     { return "\033[41m"}
+    def self.green_bg()   { return "\033[42m"}
+    def self.brown_bg()   { return "\033[43m"}
+    def self.blue_bg()    { return "\033[44m"}
+    def self.magenta_bg() { return "\033[45m"}
+    def self.cyan_bg()    { return "\033[46m"}
+    def self.white_bg()   { return "\033[47m"}
+
+    # ANSI control chars
+    def self.reset() { return "\033[0m"}
+    def self.bold()      { return "\033[1m"}
+    def self.blink()     { return "\033[5m"}
+    def self.reverse()   { return "\033[7m"}
+    def self.bold_off()     { return "\033[22m"}
+    def self.blink_off()    { return "\033[25m"}
+    def self.reverse_off()  { return "\033[27m"}
+}
+
+println ANSI.red, "hello ", ANSI.blue_bg, ANSI.white,ANSI.reverse, "Blue"

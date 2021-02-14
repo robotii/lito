@@ -1,0 +1,23 @@
+module Foo {
+  def ten {
+    10
+  }
+}
+
+class Baz {
+  def ten {
+    1
+  }
+
+  def five {
+    5
+  }
+}
+
+class Bar < Baz {
+  include Foo
+}
+
+b = Bar.new
+
+println(b.ten * b.five)

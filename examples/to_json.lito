@@ -1,0 +1,26 @@
+class JobTitle {
+  def init(name) {
+    @name = name
+  }
+
+  def json {
+    { title: @name }.json
+  }
+}
+
+class Person {
+  def init(name, age) {
+    @name = name
+    @age = age
+    @job = JobTitle.new("software engineer")
+  }
+
+  def json {
+    { name: @name, age: @age, job: @job }.json
+  }
+}
+
+bob = Person.new("Bob", 43)
+
+h = { a: 1, b: [1, "2", [4, 5, nil], { person: bob }]}.json
+println(h) #=> {"b":[1, "2", [4, 5, null], {"person":{"name":"Bob","job":{"title":"software engineer"},"age":43}}],"a":1}

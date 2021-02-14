@@ -1,0 +1,62 @@
+def xxx {
+  defer &block!
+  println "1st"
+  33
+}
+
+a = xxx {println "2nd"}
+println a
+
+def yyy(n) {
+  print "n(init)=", n, "\n"
+
+  defer(n+1) {|n|
+    print "n(defer1)=",n, "\n"
+  }
+
+  print "n(after1stdefer)=", n, "\n"
+  n = 5
+  print "n(afterchange)=", n, "\n"
+
+  defer(n+1) {|n|
+    print "n(defer2)=",n, "\n"
+  }
+
+  print "n(afterseconddefer)=", n, "\n"
+
+  return n
+}
+
+b = yyy(3)
+print "return: ",b, "\n"
+
+def zzz {
+  defer {
+    println "still called"
+  }
+  raise Error.new "Error"
+}
+
+try {
+  zzz
+} catch(Error) {|e|
+  println "Error caught!"
+  println e.stack
+}
+
+def aaa {
+  defer {
+    #raise 3
+  }
+  raise Error.new "Error"
+}
+
+try {
+  println aaa
+} catch(Error) {|e|
+  println "Error caught!"
+  println e.message
+  println e.stack
+}
+
+raise Error

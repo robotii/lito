@@ -1,0 +1,28 @@
+class Car {
+  def init {
+    yield self
+  }
+
+  def color=(c) {
+    @color = c
+  }
+
+  def color {
+    @color
+  }
+
+  def doors=(ds) {
+    @doors = ds
+  }
+
+  def doors {
+    @doors
+  }
+}
+
+car = Car.new {|c|
+  c.color = "Red"
+  c.doors = 4
+}
+
+println("My car's color is " + car.color + " and it's got " + car.doors.string + " doors.")

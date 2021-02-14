@@ -1,0 +1,11 @@
+module Outer {
+  ModVal = "out"
+
+  module Middle {
+    ModVal = "mid"
+
+    module Inner {
+      println ModVal
+    }
+  }
+}

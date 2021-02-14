@@ -1,0 +1,4 @@
+println File.extension("test.lito")
+println File.split("/home/lito/test.sh")
+println File.join("home", "github.com/robotii/lito", "test.sh")
+println File.size("file.lito")

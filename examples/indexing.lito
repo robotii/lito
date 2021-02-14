@@ -1,0 +1,17 @@
+class Indexer {
+    def `[]`(key) {
+        key * 2
+    }
+
+    def `[]=`(key, value) {
+        key + value
+    }
+}
+
+i = Indexer.new
+
+println i[44] # => 88
+println i["hello"] # => hellohello
+
+println (i[44] = 43) # => 87
+println (i["hello"] = " world") # => hello world

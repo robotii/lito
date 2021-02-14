@@ -1,0 +1,3 @@
+println("123".class.name) #=> String
+println(123.class.name) #=> Integer
+println(true.class.name) #=> Boolean

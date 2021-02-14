@@ -1,0 +1,6 @@
+
+_ = "foo"
+
+a, _, c = [1, 2, 3]
+println(c)
+println(_)
