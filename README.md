@@ -28,3 +28,9 @@ To try out the examples add the path to the file on the command line.
 ```
 ./lito examples/error.lito
 ```
+
+## VS Code Extension
+
+A basic extension for VS Code is available at https://github.com/robotii/lito-vscode
+
+It provides syntax highlighting for `.lito` files, but nothing beyond that as yet.
