@@ -14,4 +14,11 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-./lito
+# IntelliJ/GoLand
+.idea/
+
+# VSCode
+.vscode/
+
+# Project specific files
+/lito
