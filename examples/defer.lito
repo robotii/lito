@@ -59,4 +59,4 @@ try {
   println e.stack
 }
 
-raise Error
+raise Error # The error should have the correct stack trace

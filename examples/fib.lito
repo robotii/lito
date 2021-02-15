@@ -6,6 +6,7 @@ def fib(n) {
     }
 }
 
+# Benchmark the code by running it 50 times
 50.times {|i|
     print (i, " ", fib(28), "\n")
 }
