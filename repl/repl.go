@@ -305,7 +305,7 @@ func indent(c int) string {
 	return strings.Repeat(pad, c)
 }
 
-// newREPL creates a news repl.
+// newREPL creates a new iREPL.
 func newREPL(inspect bool) *iREPL {
 	return &iREPL{
 		sm: fsm.New(

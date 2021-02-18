@@ -163,7 +163,7 @@ func (p *Parser) ParseProgram() (program *ast.Program, err *errors.Error) {
 
 	// Set up last statement for testing, so we return the last value
 	// that was returned from executing the last statement
-	if p.Mode == TestMode {
+	if p.Mode == TestMode || p.Mode == REPLMode {
 		stmt := program.Statements[len(program.Statements)-1]
 		expStmt, ok := stmt.(*ast.ExpressionStatement)
 		if ok {
