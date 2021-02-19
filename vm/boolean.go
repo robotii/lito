@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/robotii/lito/vm/classes"
+	"github.com/robotii/lito/vm/errors"
 )
 
 // BooleanObject represents boolean object in Lito.
@@ -40,7 +41,33 @@ var booleanInstanceMethods = []*BuiltinMethodObject{
 		},
 		Primitive: true,
 	},
-	// TODO: Add some Smalltalk-like primitives ifTrue and ifFalse
+	{
+		Name: "ifTrue",
+		Fn: func(receiver Object, t *Thread, args []Object) Object {
+			return yieldIf(receiver, t, true)
+		},
+	},
+	{
+		Name: "ifFalse",
+		Fn: func(receiver Object, t *Thread, args []Object) Object {
+			return yieldIf(receiver, t, false)
+		},
+	},
+}
+
+func yieldIf(receiver Object, t *Thread, expected bool) Object {
+	blockFrame := t.GetBlock()
+	if blockFrame == nil {
+		return t.vm.InitErrorObject(t, errors.InternalError, errors.CantYieldWithoutBlockFormat)
+	}
+
+	if receiver.IsTruthy() == expected {
+		if blockFrame.IsEmpty() {
+			return NIL
+		}
+		return t.Yield(blockFrame)
+	}
+	return NIL
 }
 
 func initBoolClass(vm *VM) *RClass {
