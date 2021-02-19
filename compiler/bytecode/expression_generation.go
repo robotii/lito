@@ -6,6 +6,15 @@ import (
 	"github.com/robotii/lito/compiler/ast"
 )
 
+var operatorMap = map[string]int{
+	"+":  Add,
+	"-":  Subtract,
+	"<":  Less,
+	"<=": LessEqual,
+	">":  Greater,
+	">=": GreaterEqual,
+}
+
 func (g *Generator) compileExpression(is *InstructionSet, exp ast.Expression, scope *scope, table *localTable) {
 	if exp == nil {
 		return
@@ -291,21 +300,8 @@ func (g *Generator) compileInfixExpression(is *InstructionSet, node *ast.InfixEx
 	case "+", "-", ">", ">=", "<", "<=":
 		g.compileExpression(is, node.Left, scope, table)
 		g.compileExpression(is, node.Right, scope, table)
-		// TODO: Create table driven version of this?
-		switch node.Operator {
-		case "+":
-			is.define(Add, node.Line(), node.Operator)
-		case "-":
-			is.define(Subtract, node.Line(), node.Operator)
-		case ">":
-			is.define(Greater, node.Line(), node.Operator)
-		case ">=":
-			is.define(GreaterEqual, node.Line(), node.Operator)
-		case "<":
-			is.define(Less, node.Line(), node.Operator)
-		case "<=":
-			is.define(LessEqual, node.Line(), node.Operator)
-		}
+		is.define(operatorMap[node.Operator], node.Line(), node.Operator)
+
 	default:
 		g.compileExpression(is, node.Left, scope, table)
 		g.compileExpression(is, node.Right, scope, table)
