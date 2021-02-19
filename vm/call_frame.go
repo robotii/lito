@@ -55,11 +55,10 @@ func (cf *goCallFrame) stopExecution() {}
 // CallFrame structure to hold a callframe
 type CallFrame struct {
 	baseFrame
-	locals         []*Pointer
-	ep             *CallFrame // environment pointer, points to the call frame we want to get locals from
-	instructionSet *bytecode.InstructionSet
-	// program counter
-	pc int
+	locals         []*Pointer               // local variables
+	ep             *CallFrame               // environment pointer, points to the call frame we want to get locals from
+	instructionSet *bytecode.InstructionSet // bytecode to execute
+	pc             int                      // program counter
 }
 
 func (cf *CallFrame) instructionsCount() int {

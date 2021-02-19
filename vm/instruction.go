@@ -26,10 +26,12 @@ func (t *Thread) execFrame(cf *CallFrame) {
 	}(&deferStack)
 
 	insCount := cf.instructionsCount()
+	stack := &t.Stack
 	for cf.pc < insCount {
-		i := cf.instructionSet.Instructions[cf.pc]
+		// TODO: Use pointer here until we flatten bytecode
+		i := &cf.instructionSet.Instructions[cf.pc]
+		t.currentLine = cf.instructionSet.SourceMap[cf.pc]
 		cf.pc++
-		t.currentLine = i.SourceLine
 		opcode := i.Opcode
 		args := i.Params
 	retry:
@@ -39,51 +41,51 @@ func (t *Thread) execFrame(cf *CallFrame) {
 		case bytecode.Add, bytecode.Subtract,
 			bytecode.Greater, bytecode.GreaterEqual,
 			bytecode.Less, bytecode.LessEqual:
-			l, lok := t.Stack.at(1).(IntegerObject)
-			r, rok := t.Stack.at(0).(IntegerObject)
+			l, lok := stack.at(1).(IntegerObject)
+			r, rok := stack.at(0).(IntegerObject)
 			if !lok || !rok {
 				opcode = bytecode.BinaryOperator
 				goto retry
 			}
 			// Discard the extra parameter
-			t.Stack.Discard()
+			stack.Discard()
 			switch opcode {
 			case bytecode.Add:
-				t.Stack.setTop(IntegerObject(int(l) + int(r)))
+				stack.setTop(IntegerObject(int(l) + int(r)))
 
 			case bytecode.Subtract:
-				t.Stack.setTop(IntegerObject(int(l) - int(r)))
+				stack.setTop(IntegerObject(int(l) - int(r)))
 
 			case bytecode.Less:
-				t.Stack.setTop(BooleanObject(int(l) < int(r)))
+				stack.setTop(BooleanObject(int(l) < int(r)))
 
 			case bytecode.Greater:
-				t.Stack.setTop(BooleanObject(int(l) > int(r)))
+				stack.setTop(BooleanObject(int(l) > int(r)))
 
 			case bytecode.LessEqual:
-				t.Stack.setTop(BooleanObject(int(l) <= int(r)))
+				stack.setTop(BooleanObject(int(l) <= int(r)))
 
 			case bytecode.GreaterEqual:
-				t.Stack.setTop(BooleanObject(int(l) >= int(r)))
+				stack.setTop(BooleanObject(int(l) >= int(r)))
 			}
 
 		case bytecode.Pop:
-			t.Stack.Discard()
+			stack.Discard()
 
 		case bytecode.Dup:
-			t.Stack.Push(t.Stack.top())
+			stack.Push(stack.top())
 
 		case bytecode.PutTrue:
-			t.Stack.Push(TRUE)
+			stack.Push(TRUE)
 
 		case bytecode.PutFalse:
-			t.Stack.Push(FALSE)
+			stack.Push(FALSE)
 
 		case bytecode.PutInt:
-			t.Stack.Push(IntegerObject(args[0].(int)))
+			stack.Push(IntegerObject(args[0].(int)))
 
 		case bytecode.PutObject:
-			t.Stack.Push(t.vm.InitObjectFromGoType(args[0]))
+			stack.Push(t.vm.InitObjectFromGoType(args[0]))
 
 		case bytecode.GetConstant:
 			constName := args[0].(string)
@@ -94,13 +96,13 @@ func (t *Thread) execFrame(cf *CallFrame) {
 				break
 			}
 
-			if t.Stack.top() != nil && (t.Stack.topFlags().has(namespace)) {
-				t.Stack.Discard()
+			if stack.top() != nil && (stack.topFlags().has(namespace)) {
+				stack.Discard()
 			}
 
-			t.Stack.Push(c.Target)
+			stack.Push(c.Target)
 			if args[1].(bool) {
-				t.Stack.PushFlags(namespace)
+				stack.PushFlags(namespace)
 			}
 
 		case bytecode.GetLocal:
@@ -109,31 +111,31 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			var obj Object
 
 			p := cf.getLocal(index, depth)
-			if p == nil {
+			if p == nil || p.Target == nil {
 				obj = NIL
 			} else {
 				obj = p.Target
 			}
 
-			t.Stack.Push(obj)
+			stack.Push(obj)
 
 		case bytecode.GetInstanceVariable:
 			variableName := args[0].(string)
 			v, ok := cf.self.GetVariable(variableName)
 			if !ok {
-				t.Stack.Push(NIL)
+				stack.Push(NIL)
 				break
 			}
 
-			t.Stack.Push(v)
+			stack.Push(v)
 
 		case bytecode.SetInstanceVariable:
 			variableName := args[0].(string)
-			p := t.Stack.top()
+			p := stack.top()
 			cf.self.SetVariable(variableName, p)
 
 		case bytecode.SetOptional:
-			p := t.Stack.Pop()
+			p := stack.Pop()
 			depth := args[0].(int)
 			index := args[1].(int)
 
@@ -144,7 +146,7 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			}
 
 		case bytecode.SetLocal:
-			p := t.Stack.top()
+			p := stack.top()
 			depth := args[0].(int)
 			index := args[1].(int)
 
@@ -153,7 +155,7 @@ func (t *Thread) execFrame(cf *CallFrame) {
 		case bytecode.SetConstant:
 			constName := args[0].(string)
 			c := cf.lookupConstantInCurrentScope(constName)
-			v := t.Stack.Pop()
+			v := stack.Pop()
 
 			if c != nil {
 				t.pushErrorObject(errors.ConstantAlreadyInitializedError, "Constant %s already initialized. Can't assign value to a constant twice.", constName)
@@ -162,8 +164,8 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			cf.storeConstant(constName, v)
 
 		case bytecode.NewRange, bytecode.NewRangeExcl:
-			re := t.Stack.Pop()
-			rs := t.Stack.Pop()
+			re := stack.Pop()
+			rs := stack.Pop()
 			rangeEnd, ok1 := re.(IntegerObject)
 			if !ok1 {
 				t.pushErrorObject(errors.ArgumentError, errors.WrongArgumentTypeFormat, classes.IntegerClass, re.Class().Name)
@@ -172,7 +174,7 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			if !ok2 {
 				t.pushErrorObject(errors.ArgumentError, errors.WrongArgumentTypeFormat, classes.IntegerClass, rs.Class().Name)
 			}
-			t.Stack.Push(initRangeObject(t.vm, int(rangeStart), int(rangeEnd), opcode == bytecode.NewRangeExcl))
+			stack.Push(initRangeObject(t.vm, int(rangeStart), int(rangeEnd), opcode == bytecode.NewRangeExcl))
 
 		case bytecode.NewArray:
 			argCount := args[0].(int)
@@ -180,16 +182,16 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			var elems = make([]Object, argCount)
 
 			for i := argCount - 1; i >= 0; i-- {
-				v := t.Stack.Pop()
+				v := stack.Pop()
 				elems[i] = v
 			}
 
 			arr := InitArrayObject(elems)
-			t.Stack.Push(arr)
+			stack.Push(arr)
 
 		case bytecode.ExpandArray:
 			arrLength := args[0].(int)
-			arr, ok := t.Stack.Pop().(*ArrayObject)
+			arr, ok := stack.Pop().(*ArrayObject)
 
 			if !ok {
 				t.pushErrorObject(errors.TypeError, "Expect stack top's value to be an Array when executing 'expandarray' instruction.")
@@ -209,18 +211,18 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			}
 
 			for _, elem := range elems {
-				t.Stack.Push(elem)
+				stack.Push(elem)
 			}
 
 		case bytecode.SplatArray:
-			obj := t.Stack.top()
+			obj := stack.top()
 			arr, ok := obj.(*ArrayObject)
 			if ok {
 				arr.splat = true
 			}
 
 		case bytecode.SplatBlock:
-			obj := t.Stack.top()
+			obj := stack.top()
 			blk, ok := obj.(*BlockObject)
 			if ok {
 				blk.splat = true
@@ -231,14 +233,14 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			pairs := map[string]Object{}
 
 			for i := 0; i < argCount/2; i++ {
-				v := t.Stack.Pop()
-				k := t.Stack.Pop()
+				v := stack.Pop()
+				k := stack.Pop()
 				pairs[string(k.(StringObject))] = v
 			}
-			t.Stack.Push(InitHashObject(pairs))
+			stack.Push(InitHashObject(pairs))
 
 		case bytecode.BranchUnless:
-			v := t.Stack.Pop()
+			v := stack.Pop()
 			bo, isBool := v.(BooleanObject)
 
 			if isBool {
@@ -257,7 +259,7 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			}
 
 		case bytecode.BranchIf:
-			v := t.Stack.Pop()
+			v := stack.Pop()
 			bo, isBool := v.(BooleanObject)
 
 			if isBool && !bool(bo) {
@@ -283,20 +285,20 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			}
 
 		case bytecode.PutSelf:
-			t.Stack.Push(cf.self)
+			stack.Push(cf.self)
 
 		case bytecode.PutSuper:
-			t.Stack.Push(cf.self)
-			t.Stack.PushFlags(superRef)
+			stack.Push(cf.self)
+			stack.PushFlags(superRef)
 
 		case bytecode.PutString:
-			t.Stack.Push(StringObject(args[0].(string)))
+			stack.Push(StringObject(args[0].(string)))
 
 		case bytecode.PutFloat:
-			t.Stack.Push(FloatObject(args[0].(float64)))
+			stack.Push(FloatObject(args[0].(float64)))
 
 		case bytecode.PutNull:
-			t.Stack.Push(NIL)
+			stack.Push(NIL)
 
 		case bytecode.DefMethod:
 			argCount := args[0].(int)
@@ -308,7 +310,7 @@ func (t *Thread) execFrame(cf *CallFrame) {
 
 			method := &MethodObject{Name: methodName, argc: argCount, instructionSet: is, BaseObj: BaseObj{class: t.vm.TopLevelClass(classes.MethodClass)}}
 
-			v := t.Stack.Pop()
+			v := stack.Pop()
 			switch self := v.(type) {
 			case *RClass:
 				self.Methods[methodName] = method
@@ -327,7 +329,7 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			}
 			method := &MethodObject{Name: methodName, argc: argCount, instructionSet: is, BaseObj: BaseObj{class: t.vm.TopLevelClass(classes.MethodClass)}}
 
-			v := t.Stack.Pop()
+			v := stack.Pop()
 			switch v := v.(type) {
 			case *RClass:
 				if metaClass := v.MetaClass(); metaClass != nil {
@@ -374,11 +376,11 @@ func (t *Thread) execFrame(cf *CallFrame) {
 
 			is := args[2].(*bytecode.InstructionSet)
 
-			t.Stack.Discard()
+			stack.Discard()
 			c := newNormalCallFrame(is, cf.FileName(), t.GetSourceLine())
 			c.self = classPtr.Target
 			t.evaluateNormalFrame(c)
-			t.Stack.Push(classPtr.Target)
+			stack.Push(classPtr.Target)
 
 		case bytecode.Send:
 			var blockFrame *CallFrame
@@ -406,32 +408,31 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			// Deal with splat arguments
 			argCount = t.unsplatArray(argCount)
 
-			argPr := t.Stack.pointer - argCount
+			argPr := stack.pointer - argCount
 			receiverPr := argPr - 1
-			receiver := t.Stack.data[receiverPr]
+			receiver := stack.data[receiverPr]
 
 			// Find Method
-			super := t.Stack.flags[receiverPr].has(superRef)
+			super := stack.flags[receiverPr].has(superRef)
 			t.FindAndExecute(receiver, methodName, super, receiverPr, argPr, argCount, argSet, blockFrame, cf.fileName)
 
 		case bytecode.BinaryOperator:
-			// TODO: Use this where appropriate
 			methodName := args[0].(string)
 			argCount := 1
 
-			argPr := t.Stack.pointer - argCount
+			argPr := stack.pointer - argCount
 			receiverPr := argPr - 1
-			receiver := t.Stack.data[receiverPr]
+			receiver := stack.data[receiverPr]
 
 			// Find Method
-			super := t.Stack.flags[receiverPr].has(superRef)
+			super := stack.flags[receiverPr].has(superRef)
 			t.FindAndExecute(receiver, methodName, super, receiverPr, argPr, argCount, nil, nil, cf.fileName)
 
 		case bytecode.InvokeBlock:
 			argCount := args[0].(int)
-			argPr := t.Stack.pointer - argCount
+			argPr := stack.pointer - argCount
 			receiverPr := argPr - 1
-			receiver := t.Stack.data[receiverPr]
+			receiver := stack.data[receiverPr]
 
 			if cf.blockFrame == nil {
 				t.pushErrorObject(errors.InternalError, errors.CantYieldWithoutBlockFormat)
@@ -448,17 +449,17 @@ func (t *Thread) execFrame(cf *CallFrame) {
 				t.pushErrorObject(errors.InternalError, errors.CantYieldWithoutBlockFormat)
 			}
 
-			c := newNormalCallFrame(blockFrame.instructionSet, blockFrame.instructionSet.Filename, blockFrame.instructionSet.Instructions[0].SourceLine)
+			c := newNormalCallFrame(blockFrame.instructionSet, blockFrame.instructionSet.Filename, blockFrame.instructionSet.SourceMap[0])
 			c.blockFrame = blockFrame
 			c.ep = blockFrame.ep
 			c.self = receiver
 			c.isBlock = true
-			c.initLocalsFrom(t.Stack.data[argPr : argPr+argCount]...)
+			c.initLocalsFrom(stack.data[argPr : argPr+argCount]...)
 
 			t.evaluateNormalFrame(c)
 
-			t.Stack.Set(receiverPr, t.Stack.top())
-			t.Stack.pointer = receiverPr + 1
+			stack.Set(receiverPr, stack.top())
+			stack.pointer = receiverPr + 1
 
 		case bytecode.GetBlock:
 			blockFrame := cf.blockFrame
@@ -476,18 +477,16 @@ func (t *Thread) execFrame(cf *CallFrame) {
 				t.pushErrorObject(errors.InternalError, "Can't get block without a block argument")
 			}
 
-			blockObject := initBlockObject(t.vm, blockFrame.instructionSet, blockFrame.ep, t.Stack.data[t.Stack.pointer-1])
-			t.Stack.Push(blockObject)
+			blockObject := initBlockObject(t.vm, blockFrame.instructionSet, blockFrame.ep, stack.data[stack.pointer-1])
+			stack.Push(blockObject)
 
 		case bytecode.HasBlock:
-			t.Stack.Push(BooleanObject(cf.blockFrame != nil))
+			stack.Push(BooleanObject(cf.blockFrame != nil))
 
 		case bytecode.Leave:
 			cf.stopExecution()
 
 		case bytecode.Defer:
-			// TODO: Remove duplicated code and tidy up
-			//var blockFlag string
 			var blockFrame *CallFrame
 
 			argCount := args[1].(int)
@@ -503,33 +502,33 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			// Deal with splat arguments
 			argCount = t.unsplatArray(argCount)
 
-			argPr := t.Stack.pointer - argCount
+			argPr := stack.pointer - argCount
 			receiverPr := argPr - 1
 
 			// Set up the blockframe for execution
 			if blockFrame != nil {
 				blockFrame.ep = cf
 				// We take a copy of the receiver as it is at the time
-				blockFrame.self = t.Stack.data[receiverPr]
+				blockFrame.self = stack.data[receiverPr]
 				blockFrame.sourceLine = t.GetSourceLine()
 
 				c := newNormalCallFrame(blockFrame.instructionSet, blockFrame.instructionSet.Filename, t.GetSourceLine())
 				c.blockFrame = blockFrame
 				c.ep = blockFrame.ep
-				c.self = t.Stack.data[receiverPr]
+				c.self = stack.data[receiverPr]
 				c.isBlock = true
 
 				// Populate any arguments at the time of the defer call
 				// This matches the Go semantics
-				c.initLocalsFrom(t.Stack.data[argPr : argPr+argCount]...)
+				c.initLocalsFrom(stack.data[argPr : argPr+argCount]...)
 
 				// Append the call frame to the stack
 				deferStack = append(deferStack, c)
 			}
 
-			t.Stack.pointer = receiverPr + 1
+			stack.pointer = receiverPr + 1
 			// Push something onto the stack for the next instruction
-			t.Stack.Push(NIL)
+			stack.Push(NIL)
 
 		case bytecode.NoOp:
 

@@ -15,7 +15,7 @@ const (
 
 // instruction actions
 const (
-	NoOp uint8 = iota
+	NoOp int = iota
 	GetLocal
 	GetConstant
 	GetInstanceVariable
@@ -117,10 +117,9 @@ var InstructionNameTable = [...]string{
 
 // Instruction represents compiled bytecode instruction
 type Instruction struct {
-	Opcode     uint8
-	Params     []interface{}
-	SourceLine int
-	anchor     *anchor
+	Opcode int
+	Params []interface{}
+	anchor *anchor
 }
 
 // Inspect is for inspecting the instruction's content
@@ -130,7 +129,7 @@ func (i *Instruction) Inspect() string {
 	for _, param := range i.Params {
 		params = append(params, fmt.Sprint(param))
 	}
-	return fmt.Sprintf("%s: %s. source line: %d", i.ActionName(), strings.Join(params, ", "), i.SourceLine)
+	return fmt.Sprintf("%s: %s.", i.ActionName(), strings.Join(params, ", "))
 }
 
 // ActionName returns the human readable name of the instruction
@@ -161,6 +160,7 @@ type InstructionSet struct {
 	Filename     string
 	Type         string
 	Instructions []Instruction
+	SourceMap    []int
 	Count        int
 	ArgTypes     ArgSet
 }
@@ -204,13 +204,13 @@ func (is *InstructionSet) Inspect() string {
 	var out strings.Builder
 
 	for i, ins := range is.Instructions {
-		out.WriteString(fmt.Sprintf("%v : %v\n", i, ins.Inspect()))
+		out.WriteString(fmt.Sprintf("%v : %v source line: %d\n", i, ins.Inspect(), is.SourceMap[i]))
 	}
 
 	return out.String()
 }
-func (is *InstructionSet) define(action uint8, sourceLine int, params ...interface{}) *Instruction {
-	i := Instruction{Opcode: action, Params: params, SourceLine: sourceLine + 1}
+func (is *InstructionSet) define(action int, sourceLine int, params ...interface{}) *Instruction {
+	i := Instruction{Opcode: action, Params: params}
 	for _, param := range params {
 		a, ok := param.(*anchor)
 		if ok {
@@ -220,6 +220,7 @@ func (is *InstructionSet) define(action uint8, sourceLine int, params ...interfa
 	}
 
 	is.Instructions = append(is.Instructions, i)
+	is.SourceMap = append(is.SourceMap, sourceLine+1)
 	is.Count++
 	return &is.Instructions[len(is.Instructions)-1]
 }

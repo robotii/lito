@@ -167,13 +167,13 @@ func (e *Error) storeStackTraces(t *Thread) {
 			}
 
 			// Work out which line is the best match
-			ins := cf.instructionSet.Instructions
+			sMap := cf.instructionSet.SourceMap
 			if cf.pc >= insCount {
-				sourceLine = ins[insCount-1].SourceLine
+				sourceLine = sMap[insCount-1]
 			} else if cf.pc <= 0 {
-				sourceLine = ins[0].SourceLine
+				sourceLine = sMap[0]
 			} else {
-				sourceLine = ins[cf.pc-1].SourceLine
+				sourceLine = sMap[cf.pc-1]
 			}
 			msg := fmt.Sprintf("from %s:%d", frame.FileName(), sourceLine)
 			e.stackTraces = append(e.stackTraces, msg)

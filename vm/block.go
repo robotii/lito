@@ -62,7 +62,7 @@ func initBlockObject(vm *VM, is *bytecode.InstructionSet, ep *CallFrame, self Ob
 }
 
 func (bo *BlockObject) asCallFrame(t *Thread) *CallFrame {
-	c := newNormalCallFrame(bo.instructionSet, bo.instructionSet.Filename, bo.instructionSet.Instructions[0].SourceLine)
+	c := newNormalCallFrame(bo.instructionSet, bo.instructionSet.Filename, bo.instructionSet.SourceMap[0])
 	c.ep = bo.ep
 	c.self = bo.self
 	c.isBlock = true

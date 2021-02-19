@@ -810,7 +810,7 @@ var classCommonInstanceMethods = []*BuiltinMethodObject{
 
 			if blockFrame := t.GetBlock(); blockFrame != nil && !blockFrame.IsEmpty() {
 				// Build a new callframe with the self set to the receiver
-				cf := newNormalCallFrame(blockFrame.instructionSet, blockFrame.instructionSet.Filename, blockFrame.instructionSet.Instructions[0].SourceLine)
+				cf := newNormalCallFrame(blockFrame.instructionSet, blockFrame.instructionSet.Filename, blockFrame.instructionSet.SourceMap[0])
 				cf.ep = blockFrame.ep
 				cf.self = receiver
 				cf.isBlock = true
