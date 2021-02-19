@@ -31,6 +31,16 @@ Spec.describe Integer {
         expect(2 - 2) to eq(0)
       }
     }
+    describe "*" {
+      it "multiplies two numbers" {
+        expect(2 * 3) to eq(6)
+      }
+    }
+    describe "/" {
+      it "divides two numbers" {
+        expect(6 / 3) to eq(2)
+      }
+    }
   }
 }
 
