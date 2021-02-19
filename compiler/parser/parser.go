@@ -121,6 +121,7 @@ func New(l lexer.Lexer, mode Mode) *Parser {
 	p.registerInfix(token.Asterisk, p.parseInfixExpression)
 	p.registerInfix(token.RightArrow, p.parseInfixExpression)
 	p.registerInfix(token.LeftArrow, p.parseInfixExpression)
+	p.registerInfix(token.Pipe, p.parseInfixExpression)
 	p.registerInfix(token.Catch, p.parseOperatorMethodCall)
 	p.registerInfix(token.Finally, p.parseOperatorMethodCall)
 

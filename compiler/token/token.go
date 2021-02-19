@@ -93,6 +93,7 @@ const (
 
 	RightArrow = "->"
 	LeftArrow  = "<-"
+	Pipe       = "|>"
 )
 
 var keywords = map[string]Type{
@@ -155,6 +156,7 @@ var operators = map[string]Type{
 	"::": ResolutionOperator,
 	"->": RightArrow,
 	"<-": LeftArrow,
+	"|>": Pipe,
 }
 
 var separators = map[string]Type{

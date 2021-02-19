@@ -172,6 +172,9 @@ func (l *mLexer) NextToken() token.Token {
 			} else {
 				tok = token.CreateOperator("||", l.line)
 			}
+		} else if l.peek() == '>' {
+			l.advance()
+			tok = token.CreateOperator("|>", l.line)
 		} else {
 			tok = token.CreateSeparator("|", l.line)
 		}

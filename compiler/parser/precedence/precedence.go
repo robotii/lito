@@ -48,6 +48,7 @@ var LookupTable = map[token.Type]int{
 	token.ResolutionOperator: Call,
 	token.RightArrow:         Call,
 	token.LeftArrow:          Call,
+	token.Pipe:               Call,
 	token.Catch:              Call,
 	token.Finally:            Call,
 	token.Assign:             Assign,
