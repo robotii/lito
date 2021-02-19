@@ -40,6 +40,7 @@ func (g *Generator) ResetMethodInstructionSets() {
 	}
 }
 
+// Index returns the current count of the instruction sets
 func (g *Generator) Index() int {
 	return len(g.instructionSets)
 }
