@@ -12,11 +12,11 @@ type callFrameStack struct {
 }
 
 type baseFrame struct {
+	sync.Mutex
 	self       Object // self points to the object used as receiver
 	isBlock    bool
 	isRemoved  bool // for helping stop the frame execution
 	blockFrame *CallFrame
-	sync.RWMutex
 	sourceLine int
 	fileName   string
 }
@@ -113,8 +113,8 @@ func (cf *CallFrame) getLocal(index, depth int) (p *Pointer) {
 		depth--
 	}
 
-	lcf.RLock()
-	defer lcf.RUnlock()
+	lcf.Lock()
+	defer lcf.Unlock()
 
 	if index < len(lcf.locals) {
 		p = lcf.locals[index]
@@ -152,9 +152,6 @@ func (cf *CallFrame) insertLocal(index, depth int, value Object) {
 
 func (cf *CallFrame) initLocals(size int) {
 	cf.locals = make([]*Pointer, size)
-	for i := range cf.locals {
-		cf.locals[i] = &Pointer{}
-	}
 }
 
 func (cf *CallFrame) initLocalsFrom(objs ...Object) {
