@@ -71,56 +71,62 @@ const (
 	InstructionCount
 )
 
-// InstructionNameTable is the table the maps instruction's op code with its readable name
-var InstructionNameTable = [...]string{
-	NoOp:                 "no_op",
-	GetLocal:             "getlocal",
-	GetConstant:          "getconstant",
-	GetConstantNamespace: "getconstantnamespace",
-	GetInstanceVariable:  "getinstancevariable",
-	SetLocal:             "setlocal",
-	SetOptional:          "setoptional",
-	SetConstant:          "setconstant",
-	SetInstanceVariable:  "setinstancevariable",
-	PutTrue:              "puttrue",
-	PutFalse:             "putfalse",
-	PutString:            "putstring",
-	PutFloat:             "putfloat",
-	PutSelf:              "putself",
-	PutSuper:             "putsuper",
-	PutInt:               "putint",
-	PutObject:            "putobject",
-	PutNull:              "putnil",
-	NewArray:             "newarray",
-	ExpandArray:          "expand_array",
-	SplatArray:           "splat_array",
-	SplatBlock:           "splat_block",
-	NewHash:              "newhash",
-	NewRange:             "newrange",
-	NewRangeExcl:         "newrangeexcl",
-	BranchUnless:         "branchunless",
-	BranchIf:             "branchif",
-	Jump:                 "jump",
-	Break:                "break",
-	DefMethod:            "def_method",
-	DefMetaMethod:        "def_meta_method",
-	DefClass:             "def_class",
-	Send:                 "send",
-	BinaryOperator:       "bin_op",
-	Add:                  "add",
-	Subtract:             "subtract",
-	Greater:              "greater",
-	Less:                 "less",
-	GreaterEqual:         "greater_equal",
-	LessEqual:            "less_equal",
-	InvokeBlock:          "invokeblock",
-	GetBlock:             "getblock",
-	HasBlock:             "hasblock",
-	Pop:                  "pop",
-	Dup:                  "dup",
-	Defer:                "defer",
-	Leave:                "leave",
-	InstructionCount:     "instruction_count",
+// Instructions is the table that maps instruction's opcode with its readable name
+var Instructions = [...]instruction{
+	NoOp:                 {"no_op", 0, nil},
+	GetLocal:             {"getlocal", 2, []bool{false, false}},
+	GetConstant:          {"getconstant", 1, []bool{true}},
+	GetConstantNamespace: {"getconstantnamespace", 1, []bool{true}},
+	GetInstanceVariable:  {"getinstancevariable", 1, []bool{true}},
+	SetLocal:             {"setlocal", 2, []bool{false, false}},
+	SetOptional:          {"setoptional", 2, []bool{false, false}},
+	SetConstant:          {"setconstant", 1, []bool{true}},
+	SetInstanceVariable:  {"setinstancevariable", 1, []bool{true}},
+	PutTrue:              {"puttrue", 0, nil},
+	PutFalse:             {"putfalse", 0, nil},
+	PutString:            {"putstring", 1, []bool{true}},
+	PutFloat:             {"putfloat", 1, []bool{true}},
+	PutSelf:              {"putself", 0, nil},
+	PutSuper:             {"putsuper", 0, nil},
+	PutInt:               {"putint", 1, []bool{false}},
+	PutObject:            {"putobject", 1, []bool{true}},
+	PutNull:              {"putnil", 0, nil},
+	NewArray:             {"newarray", 1, []bool{false}},
+	ExpandArray:          {"expand_array", 1, []bool{false}},
+	SplatArray:           {"splat_array", 0, nil},
+	SplatBlock:           {"splat_block", 0, nil},
+	NewHash:              {"newhash", 1, []bool{false}},
+	NewRange:             {"newrange", 0, nil},
+	NewRangeExcl:         {"newrangeexcl", 0, nil},
+	BranchUnless:         {"branchunless", 1, []bool{false}},
+	BranchIf:             {"branchif", 1, []bool{false}},
+	Jump:                 {"jump", 1, []bool{false}},
+	Break:                {"break", 0, nil},
+	DefMethod:            {"def_method", 3, []bool{false, true, true}},
+	DefMetaMethod:        {"def_meta_method", 3, []bool{false, true, true}},
+	DefClass:             {"def_class", 4, []bool{true, true, true, true}},
+	Send:                 {"send", 4, []bool{false, true, true, true}},
+	BinaryOperator:       {"bin_op", 1, []bool{true}},
+	Add:                  {"add", 1, []bool{true}},
+	Subtract:             {"subtract", 1, []bool{true}},
+	Greater:              {"greater", 1, []bool{true}},
+	Less:                 {"less", 1, []bool{true}},
+	GreaterEqual:         {"greater_equal", 1, []bool{true}},
+	LessEqual:            {"less_equal", 1, []bool{true}},
+	InvokeBlock:          {"invokeblock", 1, []bool{false}},
+	GetBlock:             {"getblock", 0, nil},
+	HasBlock:             {"hasblock", 0, nil},
+	Pop:                  {"pop", 0, nil},
+	Dup:                  {"dup", 0, nil},
+	Defer:                {"defer", 2, []bool{true, true}},
+	Leave:                {"leave", 0, nil},
+	InstructionCount:     {"instruction_count", 0, nil},
+}
+
+type instruction struct {
+	name       string
+	paramCount int
+	objects    []bool
 }
 
 type anchorReference struct {
@@ -186,9 +192,31 @@ func (as *ArgSet) setArg(index int, name string, argType uint8) {
 func (is *InstructionSet) Inspect() string {
 	var out strings.Builder
 
-	// TODO: This needs rewriting for the new bytecode format
-	for i, ins := range is.Instructions {
-		out.WriteString(fmt.Sprintf("%v : %v source line: %d\n", i, InstructionNameTable[ins], is.SourceMap[i]))
+	out.WriteString("Constants\n---------\n")
+	for i, constant := range is.Constants {
+		out.WriteString(fmt.Sprintf("%v: %v\n", i, constant))
+	}
+
+	ins := is.Instructions
+	out.WriteString(fmt.Sprintf("\nBytecode: Length %v\n--------\n", len(ins)))
+	for i := 0; i < len(ins); {
+		opcode := ins[i]
+		out.WriteString(fmt.Sprintf("%v : %v [", i, Instructions[opcode].name))
+		for j := 1; j <= Instructions[opcode].paramCount; j++ {
+			var paramValue string
+			if Instructions[opcode].objects[j-1] {
+				paramValue = fmt.Sprintf("%v", is.GetObject(i+j))
+			} else {
+				paramValue = fmt.Sprintf("%v", ins[i+j])
+			}
+			if j > 1 {
+				out.WriteString(fmt.Sprintf(", %v", paramValue))
+			} else {
+				out.WriteString(fmt.Sprintf("%v", paramValue))
+			}
+		}
+		out.WriteString(fmt.Sprintf("]\tline: %d\n", is.SourceMap[i]))
+		i += Instructions[opcode].paramCount + 1
 	}
 
 	return out.String()
