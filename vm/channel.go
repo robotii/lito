@@ -38,6 +38,7 @@ var channelClassMethods = []*BuiltinMethodObject{
 			c := &ChannelObject{BaseObj: BaseObj{class: t.vm.TopLevelClass(classes.ChannelClass)}, Chan: make(chan *Object, chOpen)}
 			return c
 		},
+		Primitive: true,
 	},
 }
 
@@ -57,6 +58,7 @@ var channelInstanceMethods = []*BuiltinMethodObject{
 			close(c.Chan)
 			return NIL
 		},
+		Primitive: true,
 	},
 	{
 		Name: "<-",
@@ -76,6 +78,7 @@ var channelInstanceMethods = []*BuiltinMethodObject{
 			}
 			return c
 		},
+		Primitive: true,
 	},
 	{
 		Name: "receive",
@@ -85,6 +88,7 @@ var channelInstanceMethods = []*BuiltinMethodObject{
 			}
 			return receiver.(*ChannelObject).receive(t)
 		},
+		Primitive: true,
 	},
 	{
 		Name: "each",
@@ -120,6 +124,7 @@ var channelInstanceMethods = []*BuiltinMethodObject{
 			}
 			return IntegerObject(cap(receiver.(*ChannelObject).Chan))
 		},
+		Primitive: true,
 	},
 }
 

@@ -420,6 +420,7 @@ var classCommonInstanceMethods = []*BuiltinMethodObject{
 			rightValue, ok := receiver.(BooleanObject)
 			return BooleanObject(ok && !bool(rightValue))
 		},
+		Primitive: true,
 	},
 	{
 		Name: "class",
