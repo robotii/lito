@@ -105,7 +105,7 @@ var Instructions = [...]instruction{
 	DefMethod:            {"def_method", 3, []bool{false, true, true}},
 	DefMetaMethod:        {"def_meta_method", 3, []bool{false, true, true}},
 	DefClass:             {"def_class", 4, []bool{true, true, true, true}},
-	Send:                 {"send", 4, []bool{false, true, true, true}},
+	Send:                 {"send", 4, []bool{true, false, true, true}},
 	BinaryOperator:       {"bin_op", 1, []bool{true}},
 	Add:                  {"add", 1, []bool{true}},
 	Subtract:             {"subtract", 1, []bool{true}},
