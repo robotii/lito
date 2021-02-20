@@ -71,7 +71,7 @@ func (cf *CallFrame) stopExecution() {
 
 // IsEmpty returns true if there are no instructions in the callframe
 func (cf *CallFrame) IsEmpty() bool {
-	return len(cf.instructionSet.Instructions) == 0 || cf.instructionSet.Instructions[0].Opcode == bytecode.Leave
+	return len(cf.instructionSet.Instructions) == 0 || cf.instructionSet.Instructions[0] == bytecode.Leave
 }
 
 func (cf *baseFrame) Self() Object {

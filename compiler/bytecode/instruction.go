@@ -13,11 +13,18 @@ const (
 	Program = "Program"
 )
 
+// NoSuperClass represents a class without a superclass.
+// Using this will result in the superclass being Object.
+const (
+	NoSuperClass = "__none__"
+)
+
 // instruction actions
 const (
 	NoOp int = iota
 	GetLocal
 	GetConstant
+	GetConstantNamespace
 	GetInstanceVariable
 	SetLocal
 	SetOptional
@@ -66,59 +73,54 @@ const (
 
 // InstructionNameTable is the table the maps instruction's op code with its readable name
 var InstructionNameTable = [...]string{
-	NoOp:                "no_op",
-	GetLocal:            "getlocal",
-	GetConstant:         "getconstant",
-	GetInstanceVariable: "getinstancevariable",
-	SetLocal:            "setlocal",
-	SetOptional:         "setoptional",
-	SetConstant:         "setconstant",
-	SetInstanceVariable: "setinstancevariable",
-	PutTrue:             "puttrue",
-	PutFalse:            "putfalse",
-	PutString:           "putstring",
-	PutFloat:            "putfloat",
-	PutSelf:             "putself",
-	PutSuper:            "putsuper",
-	PutInt:              "putint",
-	PutObject:           "putobject",
-	PutNull:             "putnil",
-	NewArray:            "newarray",
-	ExpandArray:         "expand_array",
-	SplatArray:          "splat_array",
-	SplatBlock:          "splat_block",
-	NewHash:             "newhash",
-	NewRange:            "newrange",
-	NewRangeExcl:        "newrangeexcl",
-	BranchUnless:        "branchunless",
-	BranchIf:            "branchif",
-	Jump:                "jump",
-	Break:               "break",
-	DefMethod:           "def_method",
-	DefMetaMethod:       "def_meta_method",
-	DefClass:            "def_class",
-	Send:                "send",
-	BinaryOperator:      "bin_op",
-	Add:                 "add",
-	Subtract:            "subtract",
-	Greater:             "greater",
-	Less:                "less",
-	GreaterEqual:        "greater_equal",
-	LessEqual:           "less_equal",
-	InvokeBlock:         "invokeblock",
-	GetBlock:            "getblock",
-	HasBlock:            "hasblock",
-	Pop:                 "pop",
-	Dup:                 "dup",
-	Defer:               "defer",
-	Leave:               "leave",
-	InstructionCount:    "instruction_count",
-}
-
-// Instruction represents compiled bytecode instruction
-type Instruction struct {
-	Opcode int
-	Params []interface{}
+	NoOp:                 "no_op",
+	GetLocal:             "getlocal",
+	GetConstant:          "getconstant",
+	GetConstantNamespace: "getconstantnamespace",
+	GetInstanceVariable:  "getinstancevariable",
+	SetLocal:             "setlocal",
+	SetOptional:          "setoptional",
+	SetConstant:          "setconstant",
+	SetInstanceVariable:  "setinstancevariable",
+	PutTrue:              "puttrue",
+	PutFalse:             "putfalse",
+	PutString:            "putstring",
+	PutFloat:             "putfloat",
+	PutSelf:              "putself",
+	PutSuper:             "putsuper",
+	PutInt:               "putint",
+	PutObject:            "putobject",
+	PutNull:              "putnil",
+	NewArray:             "newarray",
+	ExpandArray:          "expand_array",
+	SplatArray:           "splat_array",
+	SplatBlock:           "splat_block",
+	NewHash:              "newhash",
+	NewRange:             "newrange",
+	NewRangeExcl:         "newrangeexcl",
+	BranchUnless:         "branchunless",
+	BranchIf:             "branchif",
+	Jump:                 "jump",
+	Break:                "break",
+	DefMethod:            "def_method",
+	DefMetaMethod:        "def_meta_method",
+	DefClass:             "def_class",
+	Send:                 "send",
+	BinaryOperator:       "bin_op",
+	Add:                  "add",
+	Subtract:             "subtract",
+	Greater:              "greater",
+	Less:                 "less",
+	GreaterEqual:         "greater_equal",
+	LessEqual:            "less_equal",
+	InvokeBlock:          "invokeblock",
+	GetBlock:             "getblock",
+	HasBlock:             "hasblock",
+	Pop:                  "pop",
+	Dup:                  "dup",
+	Defer:                "defer",
+	Leave:                "leave",
+	InstructionCount:     "instruction_count",
 }
 
 type anchorReference struct {
@@ -130,21 +132,6 @@ type anchor struct {
 	line int
 }
 
-// Inspect is for inspecting the instruction's content
-func (i *Instruction) Inspect() string {
-	var params []string
-
-	for _, param := range i.Params {
-		params = append(params, fmt.Sprint(param))
-	}
-	return fmt.Sprintf("%s: %s.", i.ActionName(), strings.Join(params, ", "))
-}
-
-// ActionName returns the human readable name of the instruction
-func (i *Instruction) ActionName() string {
-	return InstructionNameTable[i.Opcode]
-}
-
 func (a *anchor) define(l int) {
 	a.line = l
 }
@@ -154,7 +141,8 @@ type InstructionSet struct {
 	Name         string
 	Filename     string
 	Type         string
-	Instructions []Instruction
+	Instructions []int
+	Constants    []interface{}
 	SourceMap    []int
 	Count        int
 	ArgTypes     ArgSet
@@ -199,43 +187,64 @@ func (is *InstructionSet) Inspect() string {
 	var out strings.Builder
 
 	for i, ins := range is.Instructions {
-		out.WriteString(fmt.Sprintf("%v : %v source line: %d\n", i, ins.Inspect(), is.SourceMap[i]))
+		out.WriteString(fmt.Sprintf("%v : %v source line: %d\n", i, InstructionNameTable[ins], is.SourceMap[i]))
 	}
 
 	return out.String()
 }
 func (is *InstructionSet) define(action int, sourceLine int, params ...interface{}) *anchorReference {
 	var ref *anchorReference
-	is.Instructions = append(is.Instructions, Instruction{Opcode: action, Params: params})
+	is.Instructions = append(is.Instructions, action)
 	is.SourceMap = append(is.SourceMap, sourceLine+1)
-
-	for _, param := range params {
-		a, ok := param.(*anchor)
-		if ok {
-			ref = &anchorReference{anchor: a, insSet: is, insIndex: is.Count}
-			break
-		}
-	}
-
 	is.Count++
+	for _, param := range params {
+		if i, ok := param.(int); ok {
+			is.Instructions = append(is.Instructions, i)
+			is.SourceMap = append(is.SourceMap, sourceLine+1)
+		} else {
+			ci := is.SetConstant(param)
+			is.Instructions = append(is.Instructions, ci)
+			is.SourceMap = append(is.SourceMap, sourceLine+1)
+			a, ok := param.(*anchor)
+			if ok {
+				ref = &anchorReference{anchor: a, insSet: is, insIndex: is.Count}
+			}
+		}
+		is.Count++
+	}
 	return ref
 }
 
-func (is *InstructionSet) elide() {
-	for i, v := range is.Instructions {
-		switch v.Opcode {
-		case Jump:
-			if target, ok := v.Params[0].(int); ok {
-				if target >= len(is.Instructions) || is.Instructions[target].Opcode == Leave {
-					v.Opcode = Leave
-					is.Instructions[i] = v
-					continue
-				}
-				if is.Instructions[target].Opcode == Jump {
-					v.Params[0] = is.Instructions[target].Params[0]
-					is.Instructions[i] = v
-				}
-			}
+// GetString returns the value of the string from the constant table
+func (is *InstructionSet) GetString(index int) string {
+	s, _ := is.Constants[is.Instructions[index]].(string)
+	return s
+}
+
+// GetBool returns a bool value from the constant pool
+func (is *InstructionSet) GetBool(index int) bool {
+	b, _ := is.Constants[is.Instructions[index]].(bool)
+	return b
+}
+
+// GetObject returns an interface{} object
+func (is *InstructionSet) GetObject(index int) interface{} {
+	return is.Constants[is.Instructions[index]]
+}
+
+// GetFloat returns the int value from the constant pool
+func (is *InstructionSet) GetFloat(index int) float64 {
+	f, _ := is.Constants[is.Instructions[index]].(float64)
+	return f
+}
+
+// SetConstant adds a constant to the constant pool
+func (is *InstructionSet) SetConstant(o interface{}) int {
+	for i, v := range is.Constants {
+		if o == v {
+			return i
 		}
 	}
+	is.Constants = append(is.Constants, o)
+	return len(is.Constants) - 1
 }

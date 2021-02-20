@@ -23,8 +23,11 @@ func (g *Generator) compileExpression(is *InstructionSet, exp ast.Expression, sc
 	sourceLine := exp.Line()
 	switch exp := exp.(type) {
 	case *ast.Constant:
-		// TODO: Separate out isNamespace and isSuper?
-		is.define(GetConstant, sourceLine, exp.Value, exp.IsNamespace)
+		if exp.IsNamespace {
+			is.define(GetConstantNamespace, sourceLine, exp.Value)
+		} else {
+			is.define(GetConstant, sourceLine, exp.Value)
+		}
 	case *ast.InstanceVariable:
 		is.define(GetInstanceVariable, sourceLine, exp.Value)
 	case *ast.IntegerLiteral:
@@ -45,9 +48,9 @@ func (g *Generator) compileExpression(is *InstructionSet, exp ast.Expression, sc
 		g.compileExpression(is, exp.Start, scope, table)
 		g.compileExpression(is, exp.End, scope, table)
 		if exp.Exclusive {
-			is.define(NewRangeExcl, sourceLine, 0)
+			is.define(NewRangeExcl, sourceLine)
 		} else {
-			is.define(NewRange, sourceLine, 0)
+			is.define(NewRange, sourceLine)
 		}
 	case *ast.ArrayExpression:
 		for _, elem := range exp.Elements {
@@ -167,7 +170,7 @@ func (g *Generator) compileCallExpression(is *InstructionSet, exp *ast.CallExpre
 	}
 
 	if exp.Method == "defer" {
-		is.define(Defer, exp.Line(), exp.Method, len(exp.Arguments), blockInfo, argSet)
+		is.define(Defer, exp.Line(), len(exp.Arguments), blockInfo)
 	} else {
 		is.define(Send, exp.Line(), exp.Method, len(exp.Arguments), blockInfo, argSet)
 	}

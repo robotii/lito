@@ -56,15 +56,11 @@ func (g *Generator) GenerateInstructions(stmts []ast.Statement) []*InstructionSe
 	// Use anchor's exact position to replace anchor obj
 	for _, i := range g.instructionsWithAnchor {
 		if i != nil && i.anchor != nil && i.insSet != nil {
-			i.insSet.Instructions[i.insIndex].Params[0] = i.anchor.line
+			i.insSet.Instructions[i.insIndex] = i.anchor.line
 		}
 	}
 	// Reset the anchor list
 	g.instructionsWithAnchor = nil
-	// Perform some optimisations on the bytecode
-	for _, i := range g.instructionSets {
-		i.elide()
-	}
 	return g.instructionSets
 }
 

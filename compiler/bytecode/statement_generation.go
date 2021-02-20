@@ -129,7 +129,7 @@ func (g *Generator) compileClassStmt(is *InstructionSet, stmt *ast.ClassStatemen
 		g.compileExpression(is, stmt.SuperClass, originalScope, table)
 		is.define(DefClass, stmt.Line(), "class", stmt.Name.Value, newIS, stmt.SuperClassName)
 	} else {
-		is.define(DefClass, stmt.Line(), "class", stmt.Name.Value, newIS)
+		is.define(DefClass, stmt.Line(), "class", stmt.Name.Value, newIS, NoSuperClass)
 	}
 
 	is.define(Pop, stmt.Line())
@@ -144,7 +144,7 @@ func (g *Generator) compileModuleStmt(is *InstructionSet, stmt *ast.ModuleStatem
 	newIS.define(Leave, stmt.Line())
 	g.instructionSets = append(g.instructionSets, newIS)
 	is.define(PutSelf, stmt.Line())
-	is.define(DefClass, stmt.Line(), "module", stmt.Name.Value, newIS)
+	is.define(DefClass, stmt.Line(), "module", stmt.Name.Value, newIS, NoSuperClass)
 	is.define(Pop, stmt.Line())
 }
 

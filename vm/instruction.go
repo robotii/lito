@@ -27,13 +27,13 @@ func (t *Thread) execFrame(cf *CallFrame) {
 
 	insCount := cf.instructionsCount()
 	stack := &t.Stack
+	is := cf.instructionSet
+	code := is.Instructions
+
 	for cf.pc < insCount {
-		// TODO: Use pointer here until we flatten bytecode
-		i := &cf.instructionSet.Instructions[cf.pc]
-		t.currentLine = cf.instructionSet.SourceMap[cf.pc]
+		opcode := code[cf.pc]
+		t.currentLine = is.SourceMap[cf.pc]
 		cf.pc++
-		opcode := i.Opcode
-		args := i.Params
 	retry:
 		switch opcode {
 
@@ -68,6 +68,7 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			case bytecode.GreaterEqual:
 				stack.setTop(BooleanObject(int(l) >= int(r)))
 			}
+			cf.pc++
 
 		case bytecode.Pop:
 			stack.Discard()
@@ -82,13 +83,16 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			stack.Push(FALSE)
 
 		case bytecode.PutInt:
-			stack.Push(IntegerObject(args[0].(int)))
+			stack.Push(IntegerObject(code[cf.pc]))
+			cf.pc++
 
 		case bytecode.PutObject:
-			stack.Push(t.vm.InitObjectFromGoType(args[0]))
+			stack.Push(t.vm.InitObjectFromGoType(is.GetObject(cf.pc)))
+			cf.pc++
 
-		case bytecode.GetConstant:
-			constName := args[0].(string)
+		case bytecode.GetConstant, bytecode.GetConstantNamespace:
+			constName := is.GetString(cf.pc)
+			cf.pc++
 			c := t.vm.lookupConstant(t, cf, constName)
 
 			if c == nil {
@@ -101,13 +105,15 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			}
 
 			stack.Push(c.Target)
-			if args[1].(bool) {
+			if opcode == bytecode.GetConstantNamespace {
 				stack.PushFlags(namespace)
 			}
 
 		case bytecode.GetLocal:
-			depth := args[0].(int)
-			index := args[1].(int)
+			depth := code[cf.pc]
+			cf.pc++
+			index := code[cf.pc]
+			cf.pc++
 			var obj Object
 
 			p := cf.getLocal(index, depth)
@@ -120,7 +126,8 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			stack.Push(obj)
 
 		case bytecode.GetInstanceVariable:
-			variableName := args[0].(string)
+			variableName := is.GetString(cf.pc)
+			cf.pc++
 			v, ok := cf.self.GetVariable(variableName)
 			if !ok {
 				stack.Push(NIL)
@@ -130,14 +137,17 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			stack.Push(v)
 
 		case bytecode.SetInstanceVariable:
-			variableName := args[0].(string)
+			variableName := is.GetString(cf.pc)
+			cf.pc++
 			p := stack.top()
 			cf.self.SetVariable(variableName, p)
 
 		case bytecode.SetOptional:
 			p := stack.Pop()
-			depth := args[0].(int)
-			index := args[1].(int)
+			depth := code[cf.pc]
+			cf.pc++
+			index := code[cf.pc]
+			cf.pc++
 
 			ptr := cf.getLocal(index, depth)
 			// We may preallocate these for efficiency
@@ -147,13 +157,16 @@ func (t *Thread) execFrame(cf *CallFrame) {
 
 		case bytecode.SetLocal:
 			p := stack.top()
-			depth := args[0].(int)
-			index := args[1].(int)
+			depth := code[cf.pc]
+			cf.pc++
+			index := code[cf.pc]
+			cf.pc++
 
 			cf.insertLocal(index, depth, p)
 
 		case bytecode.SetConstant:
-			constName := args[0].(string)
+			constName := is.GetString(cf.pc)
+			cf.pc++
 			c := cf.lookupConstantInCurrentScope(constName)
 			v := stack.Pop()
 
@@ -177,7 +190,8 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			stack.Push(initRangeObject(t.vm, int(rangeStart), int(rangeEnd), opcode == bytecode.NewRangeExcl))
 
 		case bytecode.NewArray:
-			argCount := args[0].(int)
+			argCount := code[cf.pc]
+			cf.pc++
 
 			var elems = make([]Object, argCount)
 
@@ -190,7 +204,8 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			stack.Push(arr)
 
 		case bytecode.ExpandArray:
-			arrLength := args[0].(int)
+			arrLength := code[cf.pc]
+			cf.pc++
 			arr, ok := stack.Pop().(*ArrayObject)
 
 			if !ok {
@@ -229,7 +244,8 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			}
 
 		case bytecode.NewHash:
-			argCount := args[0].(int)
+			argCount := code[cf.pc]
+			cf.pc++
 			pairs := map[string]Object{}
 
 			for i := 0; i < argCount/2; i++ {
@@ -242,40 +258,42 @@ func (t *Thread) execFrame(cf *CallFrame) {
 		case bytecode.BranchUnless:
 			v := stack.Pop()
 			bo, isBool := v.(BooleanObject)
-
 			if isBool {
 				if bo {
+					cf.pc++
 					break
 				}
-				cf.pc = args[0].(int)
+				cf.pc = code[cf.pc]
 				break
 			}
 
 			_, isNull := v.(*NilObject)
-
 			if isNull {
-				cf.pc = args[0].(int)
+				cf.pc = code[cf.pc]
 				break
 			}
+			cf.pc++
 
 		case bytecode.BranchIf:
 			v := stack.Pop()
 			bo, isBool := v.(BooleanObject)
 
 			if isBool && !bool(bo) {
+				cf.pc++
 				break
 			}
 
 			_, isNull := v.(*NilObject)
 			if isNull {
+				cf.pc++
 				break
 			}
 
-			cf.pc = args[0].(int)
+			cf.pc = code[cf.pc]
 			break
 
 		case bytecode.Jump:
-			cf.pc = args[0].(int)
+			cf.pc = code[cf.pc]
 
 		case bytecode.Break:
 			if cf.IsBlock() {
@@ -292,18 +310,23 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			stack.PushFlags(superRef)
 
 		case bytecode.PutString:
-			stack.Push(StringObject(args[0].(string)))
+			stack.Push(StringObject(is.GetString(cf.pc)))
+			cf.pc++
 
 		case bytecode.PutFloat:
-			stack.Push(FloatObject(args[0].(float64)))
+			stack.Push(FloatObject(is.GetFloat(cf.pc)))
+			cf.pc++
 
 		case bytecode.PutNull:
 			stack.Push(NIL)
 
 		case bytecode.DefMethod:
-			argCount := args[0].(int)
-			methodName := args[1].(string)
-			is, ok := args[2].(*bytecode.InstructionSet)
+			argCount := code[cf.pc]
+			cf.pc++
+			methodName := is.GetString(cf.pc)
+			cf.pc++
+			is, ok := is.GetObject(cf.pc).(*bytecode.InstructionSet)
+			cf.pc++
 			if !ok {
 				t.pushErrorObject(errors.InternalError, "Can't get method %s's instruction set.", methodName)
 			}
@@ -321,9 +344,12 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			//os.Stderr.Write([]byte(method.Inspect(t) + "\n"))
 
 		case bytecode.DefMetaMethod:
-			argCount := args[0].(int)
-			methodName := args[1].(string)
-			is, ok := args[2].(*bytecode.InstructionSet)
+			argCount := code[cf.pc]
+			cf.pc++
+			methodName := is.GetString(cf.pc)
+			cf.pc++
+			is, ok := is.GetObject(cf.pc).(*bytecode.InstructionSet)
+			cf.pc++
 			if !ok {
 				t.pushErrorObject(errors.InternalError, "Can't get method %s's instruction set.", methodName)
 			}
@@ -342,8 +368,12 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			//os.Stderr.Write([]byte(method.Inspect(t) + "\n"))
 
 		case bytecode.DefClass:
-			subjectType, subjectName := args[0].(string), args[1].(string)
+			subjectType, subjectName := is.GetString(cf.pc), is.GetString(cf.pc+1)
+			cf.pc += 2
 			classPtr := cf.lookupConstantUnderAllScope(subjectName)
+
+			classIS := is.GetObject(cf.pc).(*bytecode.InstructionSet)
+			cf.pc++
 
 			if classPtr == nil {
 				var class *RClass
@@ -354,9 +384,9 @@ func (t *Thread) execFrame(cf *CallFrame) {
 				}
 
 				classPtr = cf.storeConstant(class.Name, class)
+				superClassName := is.GetString(cf.pc)
 
-				if len(args) >= 4 {
-					superClassName := args[3].(string)
+				if superClassName != bytecode.NoSuperClass {
 					if superClassName == "" {
 						t.pushErrorObject(errors.InternalError, "Invalid constant for superclass")
 					}
@@ -373,11 +403,10 @@ func (t *Thread) execFrame(cf *CallFrame) {
 					class.inherits(inheritedClass)
 				}
 			}
-
-			is := args[2].(*bytecode.InstructionSet)
+			cf.pc++
 
 			stack.Discard()
-			c := newNormalCallFrame(is, cf.FileName(), t.GetSourceLine())
+			c := newNormalCallFrame(classIS, cf.FileName(), t.GetSourceLine())
 			c.self = classPtr.Target
 			t.evaluateNormalFrame(c)
 			stack.Push(classPtr.Target)
@@ -385,14 +414,18 @@ func (t *Thread) execFrame(cf *CallFrame) {
 		case bytecode.Send:
 			var blockFrame *CallFrame
 
-			methodName := args[0].(string)
-			argCount := args[1].(int)
-			blockIS, ok := args[2].(*bytecode.InstructionSet)
+			methodName := is.GetString(cf.pc)
+			cf.pc++
+			argCount := code[cf.pc]
+			cf.pc++
+			blockIS, ok := is.GetObject(cf.pc).(*bytecode.InstructionSet)
+			cf.pc++
 			if !ok {
 				blockIS = nil
 			}
 
-			argSet, ok := args[3].(*bytecode.ArgSet)
+			argSet, ok := is.GetObject(cf.pc).(*bytecode.ArgSet)
+			cf.pc++
 
 			// Handle splatted block as last argument
 			// Check if we have an argument, as we don't want to splat the receiver
@@ -417,7 +450,8 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			t.FindAndExecute(receiver, methodName, super, receiverPr, argPr, argCount, argSet, blockFrame, cf.fileName)
 
 		case bytecode.BinaryOperator:
-			methodName := args[0].(string)
+			methodName := is.GetString(cf.pc)
+			cf.pc++
 			argCount := 1
 
 			argPr := stack.pointer - argCount
@@ -429,7 +463,8 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			t.FindAndExecute(receiver, methodName, super, receiverPr, argPr, argCount, nil, nil, cf.fileName)
 
 		case bytecode.InvokeBlock:
-			argCount := args[0].(int)
+			argCount := code[cf.pc]
+			cf.pc++
 			argPr := stack.pointer - argCount
 			receiverPr := argPr - 1
 			receiver := stack.data[receiverPr]
@@ -489,8 +524,10 @@ func (t *Thread) execFrame(cf *CallFrame) {
 		case bytecode.Defer:
 			var blockFrame *CallFrame
 
-			argCount := args[1].(int)
-			blockIS, ok := args[2].(*bytecode.InstructionSet)
+			argCount := code[cf.pc]
+			cf.pc++
+			blockIS, ok := is.GetObject(cf.pc).(*bytecode.InstructionSet)
+			cf.pc++
 			if !ok {
 				blockIS = nil
 			}
