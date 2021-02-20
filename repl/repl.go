@@ -234,8 +234,18 @@ reset:
 			ivm.gen.ResetMethodInstructionSets()
 			currentISI := ivm.gen.Index()
 			instructions := ivm.gen.GenerateInstructions(program.Statements)
+
+			// Print out instruction sets before executing
+			if repl.inspect {
+				for _, is := range instructions[currentISI:] {
+					oprintln(is.Inspect())
+				}
+			}
+
+			// Execute the instructions
 			ivm.vm.REPLExec(instructions)
 
+			// Display the result
 			var r string
 			o := ivm.vm.GetExecResult()
 			if errObj, ok := o.(*vm.Error); ok && errObj.Raised {
@@ -248,12 +258,6 @@ reset:
 			// Suppress echo back on trailing ';'
 			if t := repl.cmds[len(repl.cmds)-1]; t[len(t)-1] != semicolon {
 				oprintln(echo, r)
-			}
-
-			if repl.inspect {
-				for _, is := range instructions[currentISI:] {
-					oprintln(is.Inspect())
-				}
 			}
 
 			// Clear the commands
