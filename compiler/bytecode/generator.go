@@ -20,7 +20,7 @@ type Generator struct {
 	instructionSets        []*InstructionSet
 	blockCounter           int
 	scope                  *scope
-	instructionsWithAnchor []*Instruction
+	instructionsWithAnchor []*anchorReference
 }
 
 // NewGenerator initializes new Generator with complete AST tree.
@@ -55,9 +55,9 @@ func (g *Generator) GenerateInstructions(stmts []ast.Statement) []*InstructionSe
 	g.compileStatements(stmts, g.scope, g.scope.localTable)
 	// Use anchor's exact position to replace anchor obj
 	for _, i := range g.instructionsWithAnchor {
-		i.Params[0] = i.AnchorLine()
-		// GC the anchors that are no longer required
-		i.anchor = nil
+		if i != nil && i.anchor != nil && i.insSet != nil {
+			i.insSet.Instructions[i.insIndex].Params[0] = i.anchor.line
+		}
 	}
 	// Reset the anchor list
 	g.instructionsWithAnchor = nil

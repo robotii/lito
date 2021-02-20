@@ -119,7 +119,15 @@ var InstructionNameTable = [...]string{
 type Instruction struct {
 	Opcode int
 	Params []interface{}
-	anchor *anchor
+}
+
+type anchorReference struct {
+	anchor   *anchor
+	insSet   *InstructionSet
+	insIndex int
+}
+type anchor struct {
+	line int
 }
 
 // Inspect is for inspecting the instruction's content
@@ -135,19 +143,6 @@ func (i *Instruction) Inspect() string {
 // ActionName returns the human readable name of the instruction
 func (i *Instruction) ActionName() string {
 	return InstructionNameTable[i.Opcode]
-}
-
-// AnchorLine returns instruction anchor's line number if it has an anchor
-func (i *Instruction) AnchorLine() int {
-	if i.anchor != nil {
-		return i.anchor.line
-	}
-
-	panic("you are calling AnchorLine on an instruction without anchors")
-}
-
-type anchor struct {
-	line int
 }
 
 func (a *anchor) define(l int) {
@@ -209,20 +204,21 @@ func (is *InstructionSet) Inspect() string {
 
 	return out.String()
 }
-func (is *InstructionSet) define(action int, sourceLine int, params ...interface{}) *Instruction {
-	i := Instruction{Opcode: action, Params: params}
+func (is *InstructionSet) define(action int, sourceLine int, params ...interface{}) *anchorReference {
+	var ref *anchorReference
+	is.Instructions = append(is.Instructions, Instruction{Opcode: action, Params: params})
+	is.SourceMap = append(is.SourceMap, sourceLine+1)
+
 	for _, param := range params {
 		a, ok := param.(*anchor)
 		if ok {
-			i.anchor = a
+			ref = &anchorReference{anchor: a, insSet: is, insIndex: is.Count}
 			break
 		}
 	}
 
-	is.Instructions = append(is.Instructions, i)
-	is.SourceMap = append(is.SourceMap, sourceLine+1)
 	is.Count++
-	return &is.Instructions[len(is.Instructions)-1]
+	return ref
 }
 
 func (is *InstructionSet) elide() {
