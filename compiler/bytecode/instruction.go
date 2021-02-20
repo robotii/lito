@@ -276,3 +276,24 @@ func (is *InstructionSet) SetConstant(o interface{}) int {
 	is.Constants = append(is.Constants, o)
 	return len(is.Constants) - 1
 }
+
+func (is *InstructionSet) elide() {
+	length := len(is.Instructions)
+	for i := 0; i < length; {
+		op := is.Instructions[i]
+		switch op {
+		case Jump:
+			target := is.Instructions[i+1]
+			if target > length || is.Instructions[target] == Leave {
+				is.Instructions[i] = Leave
+				is.Instructions[i+1] = NoOp
+				break
+			}
+			if is.Instructions[target] == Jump {
+				is.Instructions[i+1] = is.Instructions[target+1]
+				break
+			}
+		}
+		i += 1 + Instructions[op].paramCount
+	}
+}

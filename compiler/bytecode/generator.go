@@ -61,6 +61,10 @@ func (g *Generator) GenerateInstructions(stmts []ast.Statement) []*InstructionSe
 	}
 	// Reset the anchor list
 	g.instructionsWithAnchor = nil
+	// Perform some optimisations on the bytecode
+	for _, i := range g.instructionSets {
+		i.elide()
+	}
 	return g.instructionSets
 }
 
