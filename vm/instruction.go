@@ -412,8 +412,6 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			stack.Push(classPtr.Target)
 
 		case bytecode.Send:
-			var blockFrame *CallFrame
-
 			methodName := is.GetString(cf.pc)
 			cf.pc++
 			argCount := code[cf.pc]
@@ -429,7 +427,7 @@ func (t *Thread) execFrame(cf *CallFrame) {
 
 			// Handle splatted block as last argument
 			// Check if we have an argument, as we don't want to splat the receiver
-			argCount, blockFrame = t.unsplatBlock(cf, argCount, blockFrame, blockIS)
+			argCount, blockFrame := t.unsplatBlock(cf, argCount, blockIS)
 
 			// Set up the blockframe for execution
 			if blockFrame != nil {
@@ -522,8 +520,6 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			cf.stopExecution()
 
 		case bytecode.Defer:
-			var blockFrame *CallFrame
-
 			argCount := code[cf.pc]
 			cf.pc++
 			blockIS, ok := is.GetObject(cf.pc).(*bytecode.InstructionSet)
@@ -534,7 +530,7 @@ func (t *Thread) execFrame(cf *CallFrame) {
 
 			// Allow passing a block as argument
 			// Check if we have an argument, as we don't want to splat the receiver
-			argCount, blockFrame = t.unsplatBlock(cf, argCount, blockFrame, blockIS)
+			argCount, blockFrame := t.unsplatBlock(cf, argCount, blockIS)
 
 			// Deal with splat arguments
 			argCount = t.unsplatArray(argCount)
@@ -588,7 +584,8 @@ func (t *Thread) unsplatArray(argCount int) int {
 	return argCount
 }
 
-func (t *Thread) unsplatBlock(cf *CallFrame, argCount int, blockFrame *CallFrame, blockIS *bytecode.InstructionSet) (int, *CallFrame) {
+func (t *Thread) unsplatBlock(cf *CallFrame, argCount int, blockIS *bytecode.InstructionSet) (int, *CallFrame) {
+	var blockFrame *CallFrame
 	if blk, ok := t.Stack.top().(*BlockObject); ok && argCount > 0 && blk.splat {
 		// Pop block
 		t.Stack.Discard()
