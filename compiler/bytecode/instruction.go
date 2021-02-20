@@ -186,6 +186,7 @@ func (as *ArgSet) setArg(index int, name string, argType uint8) {
 func (is *InstructionSet) Inspect() string {
 	var out strings.Builder
 
+	// TODO: This needs rewriting for the new bytecode format
 	for i, ins := range is.Instructions {
 		out.WriteString(fmt.Sprintf("%v : %v source line: %d\n", i, InstructionNameTable[ins], is.SourceMap[i]))
 	}
@@ -198,18 +199,17 @@ func (is *InstructionSet) define(action int, sourceLine int, params ...interface
 	is.SourceMap = append(is.SourceMap, sourceLine+1)
 	is.Count++
 	for _, param := range params {
-		if i, ok := param.(int); ok {
-			is.Instructions = append(is.Instructions, i)
-			is.SourceMap = append(is.SourceMap, sourceLine+1)
-		} else {
+		switch p := param.(type) {
+		case int:
+			is.Instructions = append(is.Instructions, p)
+		case *anchor:
+			is.Instructions = append(is.Instructions, 0)
+			ref = &anchorReference{anchor: p, insSet: is, insIndex: is.Count}
+		default:
 			ci := is.SetConstant(param)
 			is.Instructions = append(is.Instructions, ci)
-			is.SourceMap = append(is.SourceMap, sourceLine+1)
-			a, ok := param.(*anchor)
-			if ok {
-				ref = &anchorReference{anchor: a, insSet: is, insIndex: is.Count}
-			}
 		}
+		is.SourceMap = append(is.SourceMap, sourceLine+1)
 		is.Count++
 	}
 	return ref
