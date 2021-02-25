@@ -436,17 +436,13 @@ var stringInstanceMethods = []*BuiltinMethodObject{
 				return t.vm.InitErrorObject(t, errors.TypeError, errors.WrongArgumentTypeFormatNum, 2, classes.StringClass, args[1].Class().Name)
 			}
 
-			var result string
 			target := string(receiver.(StringObject))
 			switch pattern := args[0].(type) {
 			case StringObject:
-				result = strings.Replace(target, string(pattern), string(replacement), -1)
+				return StringObject(strings.Replace(target, string(pattern), string(replacement), -1))
 			default:
 				return t.vm.InitErrorObject(t, errors.TypeError, errors.WrongArgumentTypeFormatNum, 1, classes.StringClass+" or "+classes.RegexpClass, args[0].Class().Name)
 			}
-
-			return StringObject(result)
-
 		},
 	},
 	{
@@ -462,31 +458,20 @@ var stringInstanceMethods = []*BuiltinMethodObject{
 				return t.vm.InitErrorObject(t, errors.TypeError, errors.WrongArgumentTypeFormatNum, 2, classes.StringClass, args[1].Class().Name)
 			}
 
-			var result string
 			target := string(receiver.(StringObject))
 			switch pattern := args[0].(type) {
 			case StringObject:
-				result = strings.Replace(target, string(pattern), string(replacement), 1)
+				return StringObject(strings.Replace(target, string(pattern), string(replacement), 1))
 			default:
 				return t.vm.InitErrorObject(t, errors.TypeError, errors.WrongArgumentTypeFormatNum, 1, classes.StringClass+" or "+classes.RegexpClass, args[0].Class().Name)
 			}
-
-			return StringObject(result)
 		},
 	},
 	{
 		Name: "reverse",
 		Fn: func(receiver Object, t *Thread, args []Object) Object {
-
 			str := string(receiver.(StringObject))
-
-			var revert string
-			// TODO: Find a better way to do this
-			for i := utf8.RuneCountInString(str) - 1; i >= 0; i-- {
-				revert += string([]rune(str)[i])
-			}
-
-			return StringObject(revert)
+			return StringObject(reverseString(str))
 		},
 	},
 	{
@@ -882,4 +867,36 @@ func strEachChar(receiver Object, t *Thread, args []Object) Object {
 	}
 
 	return StringObject(str)
+}
+
+// reverseString interprets its argument as UTF-8
+// and ignores bytes that do not form valid UTF-8.  return value is UTF-8.
+func reverseString(str string) string {
+	if str == "" {
+		return ""
+	}
+	srcRunes := []rune(str)
+	targetRunes := make([]rune, len(srcRunes))
+	start := len(targetRunes)
+	for i := 0; i < len(srcRunes); {
+		// Skip invalid characters
+		if srcRunes[i] == utf8.RuneError {
+			i++
+			continue
+		}
+		// Check if the next character should be combined
+		j := i + 1
+		for j < len(srcRunes) && (unicode.Is(unicode.Mn, srcRunes[j]) ||
+			unicode.Is(unicode.Me, srcRunes[j]) || unicode.Is(unicode.Mc, srcRunes[j])) {
+			j++
+		}
+		// Copy the sequence into the target array
+		for k := j - 1; k >= i; k-- {
+			start--
+			targetRunes[start] = srcRunes[k]
+		}
+		// Skip ahead the number of characters we processed
+		i = j
+	}
+	return (string(targetRunes[start:]))
 }
