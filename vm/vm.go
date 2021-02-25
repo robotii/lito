@@ -199,7 +199,7 @@ func standard(vm *VM) error {
 	}
 
 	// Init non-sandbox code
-	initARGV(vm)
+	initArgs(vm)
 	initEnvironment(vm)
 	initStdFiles(vm)
 
@@ -232,19 +232,19 @@ func initEnvironment(vm *VM) {
 	vm.objectClass.constants["Env"] = &Pointer{Target: InitHashObject(envs)}
 }
 
-func initARGV(vm *VM) {
-	// Init ARGV
+func initArgs(vm *VM) {
+	// Init Args
 	args := make([]Object, 0, len(vm.args))
 	for _, arg := range vm.args {
 		args = append(args, StringObject(arg))
 	}
-	vm.objectClass.constants["ARGV"] = &Pointer{Target: InitArrayObject(args)}
+	vm.objectClass.constants["Args"] = &Pointer{Target: InitArrayObject(args)}
 }
 
 func initStdFiles(vm *VM) {
-	vm.objectClass.constants["STDOUT"] = &Pointer{Target: initFileObject(vm, os.Stdout)}
-	vm.objectClass.constants["STDERR"] = &Pointer{Target: initFileObject(vm, os.Stderr)}
-	vm.objectClass.constants["STDIN"] = &Pointer{Target: initFileObject(vm, os.Stdin)}
+	vm.objectClass.constants["Stdout"] = &Pointer{Target: initFileObject(vm, os.Stdout)}
+	vm.objectClass.constants["Stderr"] = &Pointer{Target: initFileObject(vm, os.Stderr)}
+	vm.objectClass.constants["Stdin"] = &Pointer{Target: initFileObject(vm, os.Stdin)}
 }
 
 // TopLevelClass returns the class for a given name

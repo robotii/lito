@@ -1,1 +1,1 @@
-println("Hello " + ARGV[0])
+println("Hello " + Args[0])
