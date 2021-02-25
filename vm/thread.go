@@ -168,8 +168,6 @@ func (t *Thread) YieldWithBlockArgument(blockFrame *CallFrame, block *CallFrame,
 }
 
 func (t *Thread) sendMethod(methodName string, argCount int, blockFrame *CallFrame) {
-	//var method Object
-
 	// Splat the current block if it is the last argument
 	// Check if we have an argument, as we don't want to splat the receiver
 	if blk, ok := t.Stack.top().(*BlockObject); ok && argCount > 0 && blk.splat {
