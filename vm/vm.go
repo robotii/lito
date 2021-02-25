@@ -226,7 +226,7 @@ func initEnvironment(vm *VM) {
 	envs := map[string]Object{}
 
 	for _, e := range os.Environ() {
-		pair := strings.Split(e, "=")
+		pair := strings.SplitN(e, "=", 2)
 		envs[pair[0]] = StringObject(pair[1])
 	}
 	vm.objectClass.constants["Env"] = &Pointer{Target: InitHashObject(envs)}
