@@ -204,12 +204,16 @@ var hashInstanceMethods = []*BuiltinMethodObject{
 			h := receiver.(*HashObject)
 
 			keys := h.sortedKeys()
-			var arrOfKeys []Object
+			arrOfKeys := make([]Object, 0, len(keys))
 
 			for _, k := range keys {
 				obj := StringObject(k)
 				arrOfKeys = append(arrOfKeys, obj)
 				t.Yield(blockFrame, obj)
+				// If we break inside the block, then stop the iteration
+				if blockFrame.IsRemoved() {
+					break
+				}
 			}
 
 			return InitArrayObject(arrOfKeys)
@@ -229,12 +233,16 @@ var hashInstanceMethods = []*BuiltinMethodObject{
 			h := receiver.(*HashObject)
 
 			keys := h.sortedKeys()
-			var arrOfValues []Object
+			arrOfValues := make([]Object, 0, len(keys))
 
 			for _, k := range keys {
 				value := h.Pairs[k]
 				arrOfValues = append(arrOfValues, value)
 				t.Yield(blockFrame, value)
+				// If we break inside the block, then stop the iteration
+				if blockFrame.IsRemoved() {
+					break
+				}
 			}
 
 			return InitArrayObject(arrOfValues)
@@ -292,6 +300,31 @@ var hashInstanceMethods = []*BuiltinMethodObject{
 
 			h := receiver.(*HashObject)
 			return IntegerObject(h.length())
+		},
+	},
+	{
+		Name: "map",
+		Fn: func(receiver Object, t *Thread, args []Object) Object {
+			if len(args) != 0 {
+				return t.vm.InitErrorObject(t, errors.ArgumentError, errors.WrongNumberOfArgument, 0, len(args))
+			}
+			blockFrame := t.GetBlock()
+			if blockFrame == nil {
+				return t.vm.InitErrorObject(t, errors.InternalError, errors.CantYieldWithoutBlockFormat)
+			}
+
+			h := receiver.(*HashObject)
+			resultArray := make([]Object, 0, len(h.Pairs))
+
+			if !blockFrame.IsEmpty() {
+				keys := h.sortedKeys()
+				for _, k := range keys {
+					result := t.Yield(blockFrame, StringObject(k), h.Pairs[k])
+					resultArray = append(resultArray, result)
+				}
+			}
+			return InitArrayObject(resultArray)
+
 		},
 	},
 	{
@@ -543,7 +576,7 @@ func (h *HashObject) length() int {
 
 // Returns the sorted keys of the hash
 func (h *HashObject) sortedKeys() []string {
-	var arr []string
+	var arr = make([]string, 0, len(h.Pairs))
 	for k := range h.Pairs {
 		arr = append(arr, k)
 	}
