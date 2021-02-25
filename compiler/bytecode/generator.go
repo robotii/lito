@@ -23,7 +23,7 @@ type Generator struct {
 	instructionsWithAnchor []*anchorReference
 }
 
-// NewGenerator initializes new Generator with complete AST tree.
+// NewGenerator initialises new Generator with complete AST tree.
 func NewGenerator() *Generator {
 	return &Generator{}
 }

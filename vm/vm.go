@@ -100,7 +100,7 @@ var MachineConfigs = map[string]ConfigFunc{
 	"sandbox":  sandbox,
 }
 
-// New initializes a vm to initial state and returns it.
+// New initialises a vm to initial state and returns it.
 func New(fileDir string, args []string, configs ...ConfigFunc) (vm *VM, err error) {
 	vm = &VM{args: args, threadCount: 1}
 	vm.mainThread.vm = vm

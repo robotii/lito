@@ -871,7 +871,7 @@ var classCommonInstanceMethods = []*BuiltinMethodObject{
 	},
 }
 
-// InitClass is a common function for vm, which initializes and returns
+// InitClass is a common function for vm, which initialises and returns
 // a class instance with given class name.
 func (vm *VM) InitClass(name string) *RClass {
 	class := createRClass(vm, name)

@@ -96,7 +96,7 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			c := t.vm.lookupConstant(t, cf, constName)
 
 			if c == nil {
-				t.pushErrorObject(errors.NameError, "uninitialized constant '%s'", constName)
+				t.pushErrorObject(errors.NameError, "uninitialised constant '%s'", constName)
 				break
 			}
 
@@ -171,7 +171,7 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			v := stack.Pop()
 
 			if c != nil {
-				t.pushErrorObject(errors.ConstantAlreadyInitializedError, "Constant %s already initialized. Can't assign value to a constant twice.", constName)
+				t.pushErrorObject(errors.ConstantAlreadyInitialisedError, "Constant %s already initialised. Can't assign value to a constant twice.", constName)
 			}
 
 			cf.storeConstant(constName, v)

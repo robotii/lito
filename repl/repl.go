@@ -335,10 +335,10 @@ func newIVM(mType string) (ivm iVM, err error) {
 	if err == nil {
 		ivm.vm.InitForREPL()
 
-		// Initialize parser, lexer is not important here
+		// Initialise parser, lexer is not important here
 		ivm.parser = parser.New(lexer.New(""), parser.REPLMode)
 		program, _ := ivm.parser.ParseProgram()
-		// Initialize code generator, and it will behave a little different in REPL mode.
+		// Initialise code generator, and it will behave a little different in REPL mode.
 		ivm.gen = bytecode.NewGenerator()
 		ivm.gen.REPL = true
 		ivm.gen.InitTopLevelScope(program)

@@ -185,7 +185,7 @@ var stringInstanceMethods = []*BuiltinMethodObject{
 		},
 	},
 	{
-		Name: "capitalize",
+		Name: "capitalise",
 		Fn: func(receiver Object, t *Thread, args []Object) Object {
 
 			str := string(receiver.(StringObject))

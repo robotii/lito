@@ -15,8 +15,8 @@ const (
 	TypeError = "TypeError"
 	// NoMethodError is for an intentionally unsupported-method error
 	NoMethodError = "NoMethodError"
-	// ConstantAlreadyInitializedError means user re-declares twice
-	ConstantAlreadyInitializedError = "ConstantAlreadyInitializedError"
+	// ConstantAlreadyInitialisedError means user re-declares twice
+	ConstantAlreadyInitialisedError = "ConstantAlreadyInitialisedError"
 	// ZeroDivisionError is for zero-division by Integer/Float value
 	ZeroDivisionError = "ZeroDivisionError"
 	// ChannelCloseError is for accessing to the closed channel
@@ -55,7 +55,7 @@ var Classes = [...]string{
 	NameError,
 	TypeError,
 	NoMethodError,
-	ConstantAlreadyInitializedError,
+	ConstantAlreadyInitialisedError,
 	ZeroDivisionError,
 	ChannelCloseError,
 	NotImplementedError,

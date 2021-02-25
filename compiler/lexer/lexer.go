@@ -27,7 +27,7 @@ const (
 	nosymbol = "nosymbol"
 )
 
-// New initializes a new lexer with input string
+// New initialises a new lexer with input string
 func New(input string) Lexer {
 	l := &mLexer{input: []rune(input)}
 	// Read the first character

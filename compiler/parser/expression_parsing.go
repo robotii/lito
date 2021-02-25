@@ -107,7 +107,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 		return nil
 	}
 
-	// Prohibit calling a capitalized method on toplevel:
+	// Prohibit calling a capitalised method on toplevel:
 	if p.curTokenIs(token.Constant) && (p.fsm.Is(states.Normal) || p.fsm.Is(states.ParsingAssignment)) {
 		if p.peekTokenIs(token.LParen) {
 			p.callConstantError(p.curToken.Type)

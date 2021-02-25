@@ -117,10 +117,10 @@ var arrayInstanceMethods = []*BuiltinMethodObject{
 			arr := receiver.(*ArrayObject)
 			if aLen == 3 {
 				if indexValue < 0 {
-					if arr.normalizeIndex(index) == -1 {
+					if arr.normaliseIndex(index) == -1 {
 						return t.vm.InitErrorObject(t, errors.ArgumentError, errors.TooSmallIndexValue, indexValue, -arr.Len())
 					}
-					indexValue = arr.normalizeIndex(index)
+					indexValue = arr.normaliseIndex(index)
 				}
 
 				c := args[1]
@@ -336,15 +336,15 @@ var arrayInstanceMethods = []*BuiltinMethodObject{
 			}
 
 			arr := receiver.(*ArrayObject)
-			normalizedIndex := arr.normalizeIndex(index)
+			normalisedIndex := arr.normaliseIndex(index)
 
-			if normalizedIndex == -1 {
+			if normalisedIndex == -1 {
 				return NIL
 			}
 
 			// delete and slice
-			deletedValue := arr.Elements[normalizedIndex]
-			arr.Elements = append(arr.Elements[:normalizedIndex], arr.Elements[normalizedIndex+1:]...)
+			deletedValue := arr.Elements[normalisedIndex]
+			arr.Elements = append(arr.Elements[:normalisedIndex], arr.Elements[normalisedIndex+1:]...)
 			return deletedValue
 		},
 	},
@@ -917,8 +917,8 @@ func (a *ArrayObject) index(t *Thread, args []Object) Object {
 	}
 
 	// Start Indexing
-	normalizedIndex := a.normalizeIndex(index)
-	if normalizedIndex == -1 {
+	normalisedIndex := a.normaliseIndex(index)
+	if normalisedIndex == -1 {
 		return NIL
 	}
 
@@ -926,13 +926,13 @@ func (a *ArrayObject) index(t *Thread, args []Object) Object {
 		j := args[1]
 		count, _ := j.(IntegerObject)
 
-		if normalizedIndex+int(count) > arrLength {
-			return InitArrayObject(a.Elements[normalizedIndex:])
+		if normalisedIndex+int(count) > arrLength {
+			return InitArrayObject(a.Elements[normalisedIndex:])
 		}
-		return InitArrayObject(a.Elements[normalizedIndex : normalizedIndex+int(count)])
+		return InitArrayObject(a.Elements[normalisedIndex : normalisedIndex+int(count)])
 	}
 
-	return a.Elements[normalizedIndex]
+	return a.Elements[normalisedIndex]
 }
 
 // flatten returns a array of Objects that is one-dimensional flattening of Elements
@@ -974,7 +974,7 @@ func (a *ArrayObject) Less(i, j int) bool {
 	}
 }
 
-func (a *ArrayObject) normalizeIndex(objectIndex IntegerObject) int {
+func (a *ArrayObject) normaliseIndex(objectIndex IntegerObject) int {
 	aLength := len(a.Elements)
 	index := int(objectIndex)
 
