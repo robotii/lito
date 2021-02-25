@@ -234,7 +234,7 @@ func initEnvironment(vm *VM) {
 
 func initARGV(vm *VM) {
 	// Init ARGV
-	args := make([]Object, len(vm.args))
+	args := make([]Object, 0, len(vm.args))
 	for _, arg := range vm.args {
 		args = append(args, StringObject(arg))
 	}
