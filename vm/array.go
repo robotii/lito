@@ -827,7 +827,7 @@ func (a *ArrayObject) ToString(t *Thread) string {
 
 	var elements []string
 	for _, e := range a.Elements {
-		elements = append(elements, e.Inspect(t))
+		elements = append(elements, e.ToString(t))
 	}
 
 	out.WriteString("[")
@@ -837,9 +837,20 @@ func (a *ArrayObject) ToString(t *Thread) string {
 	return out.String()
 }
 
-// Inspect delegates to ToString
+// Inspect returns the inspection of the Array
 func (a *ArrayObject) Inspect(t *Thread) string {
-	return a.ToString(t)
+	var out strings.Builder
+
+	var elements []string
+	for _, e := range a.Elements {
+		elements = append(elements, e.Inspect(t))
+	}
+
+	out.WriteString("[")
+	out.WriteString(strings.Join(elements, ", "))
+	out.WriteString("]")
+
+	return out.String()
 }
 
 // ToJSON returns the object's elements as the JSON string format

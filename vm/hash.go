@@ -494,7 +494,7 @@ func (h *HashObject) ToString(t *Thread) string {
 	var pairs []string
 
 	for _, key := range h.sortedKeys() {
-		pairs = append(pairs, fmt.Sprintf("%s: %s", key, h.Pairs[key].Inspect(t)))
+		pairs = append(pairs, fmt.Sprintf("%s: %s", key, h.Pairs[key].ToString(t)))
 	}
 
 	out.WriteString("{ ")
@@ -504,9 +504,20 @@ func (h *HashObject) ToString(t *Thread) string {
 	return out.String()
 }
 
-// Inspect delegates to ToString
+// Inspect returns the inspection of the object
 func (h *HashObject) Inspect(t *Thread) string {
-	return h.ToString(t)
+	var out strings.Builder
+	var pairs []string
+
+	for _, key := range h.sortedKeys() {
+		pairs = append(pairs, fmt.Sprintf("%s: %s", key, h.Pairs[key].Inspect(t)))
+	}
+
+	out.WriteString("{ ")
+	out.WriteString(strings.Join(pairs, ", "))
+	out.WriteString(" }")
+
+	return out.String()
 }
 
 // ToJSON returns the object's name as the JSON string format
