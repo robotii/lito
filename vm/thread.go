@@ -107,15 +107,6 @@ func (t *Thread) evaluateNormalFrame(cf *CallFrame) {
 }
 
 func (t *Thread) reportErrorAndStop(e interface{}) {
-	cf := t.callFrameStack.top()
-
-	if cf != nil {
-		cf.stopExecution()
-		if !cf.IsRemoved() {
-			t.callFrameStack.pop()
-		}
-	}
-
 	top := t.Stack.top()
 	switch err := top.(type) {
 	// If we can get an error object it means it's a Lito error
@@ -123,10 +114,21 @@ func (t *Thread) reportErrorAndStop(e interface{}) {
 		if !err.storedTraces {
 			err.storeStackTraces(t)
 		}
+		t.stopFrame()
 		panic(err)
 		// Otherwise it's a Go panic that needs to be raised
 	default:
+		t.stopFrame()
 		panic(e)
+	}
+}
+
+func (t *Thread) stopFrame() {
+	if cf := t.callFrameStack.top(); cf != nil {
+		cf.stopExecution()
+		if !cf.IsRemoved() {
+			t.callFrameStack.pop()
+		}
 	}
 }
 
