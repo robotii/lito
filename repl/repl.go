@@ -171,7 +171,12 @@ reset:
 			// The prompt should be `:` even on the top level indentation when the line is `else` or `elif` or like that
 			case pErr.IsUnexpectedToken():
 				oprintln(prompt2 + indent(repl.indent-1) + repl.line)
-				repl.rl.SetPrompt(prompt2 + indent(repl.indent))
+				oprintln(pErr.Message)
+				// Clear the commands
+				repl.indent = 0
+				repl.prevIndent = 0
+				repl.cmds = nil
+				repl.rl.SetPrompt(prompt1)
 				repl.sm.State(waiting)
 				continue
 
