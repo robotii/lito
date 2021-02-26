@@ -25,8 +25,7 @@ type RClass struct {
 	metaClass *RClass
 	// This is the class where we should looking for a method.
 	// It can be normal class, meta class or a module.
-	superClass *RClass
-	// Class points to this class's class, which should be ClassClass
+	superClass     *RClass
 	isModule       bool
 	constants      map[string]*Pointer
 	scope          *RClass
@@ -479,26 +478,11 @@ var classCommonInstanceMethods = []*BuiltinMethodObject{
 		Name: "instance_eval",
 		Fn: func(receiver Object, t *Thread, args []Object) Object {
 			blockFrame := t.GetBlock()
-			aLen := len(args)
-			switch aLen {
-			case 0:
-			case 1:
-				if args[0].Class().Name == classes.BlockClass {
-					blockObj := args[0].(*BlockObject)
-					blockFrame = blockObj.asCallFrame(t)
-				} else {
-					return t.vm.InitErrorObject(t, errors.TypeError, errors.WrongArgumentTypeFormat, classes.BlockClass, args[0].Class().Name)
-				}
-			default:
-				return t.vm.InitErrorObject(t, errors.ArgumentError, errors.WrongNumberOfArgumentLess, 1, aLen)
-			}
-
 			if blockFrame == nil || blockFrame.IsEmpty() {
 				return receiver
 			}
-
 			blockFrame.self = receiver
-			return t.Yield(blockFrame)
+			return t.Yield(blockFrame, args...)
 		},
 	},
 	{
@@ -535,6 +519,18 @@ var classCommonInstanceMethods = []*BuiltinMethodObject{
 
 			receiver.SetVariable(string(argName), args[1])
 			return args[1]
+		},
+		Primitive: true,
+	},
+	{
+		Name: "vars",
+		Fn: func(receiver Object, t *Thread, args []Object) Object {
+			env := receiver.Variables()
+			m := make(map[string]Object, len(env))
+			for k, v := range env {
+				m[k] = v
+			}
+			return InitHashObject(m)
 		},
 		Primitive: true,
 	},
