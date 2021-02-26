@@ -239,7 +239,7 @@ func (p *Parser) peekError(t token.Type) {
 }
 
 func (p *Parser) noPrefixParseFnError(t token.Type) {
-	msg := fmt.Sprintf("unexpected %s Line: %d", p.curToken.Literal, p.curToken.Line+1)
+	msg := fmt.Sprintf("unexpected %s(%s) Line: %d", p.curToken.Literal, p.curToken.Type, p.curToken.Line+1)
 	if t == token.RBrace {
 		p.error = errors.InitError(msg, errors.UnexpectedEndError)
 	} else {
