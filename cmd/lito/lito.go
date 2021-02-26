@@ -73,10 +73,10 @@ func main() {
 
 	// Execute files normally
 	dir, _, fileExt := extractFileInfo(fp)
-	file := readFile(fp)
 
 	switch fileExt {
 	case vm.FileExt:
+		file := readFile(fp)
 		args := flag.Args()[1:]
 		instructionSets, err := compiler.CompileToInstructions(string(file), parser.NormalMode)
 		reportErrorAndExit(err)
