@@ -260,6 +260,8 @@ var moduleCommonClassMethods = []*BuiltinMethodObject{
 				return class
 			}
 
+			// Make a copy of the module
+			module = &*module
 			module.superClass = class.superClass
 			class.superClass = module
 
@@ -289,6 +291,8 @@ var moduleCommonClassMethods = []*BuiltinMethodObject{
 				return class
 			}
 
+			// Make a copy of the module
+			module = &*module
 			module.superClass = class.superClass
 			class.superClass = module
 
