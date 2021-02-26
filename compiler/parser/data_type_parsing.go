@@ -91,6 +91,8 @@ func (p *Parser) parseHashPair(pairs map[string]ast.Expression) {
 	switch p.curToken.Type {
 	case token.Constant, token.Ident:
 		key = p.parseIdentifier().(ast.Variable).ReturnValue()
+	case token.String:
+		key = p.curToken.Literal
 	default:
 		p.error = errors.NewTypeParsingError(p.curToken.Literal, "hash key", p.curToken.Line)
 		return
