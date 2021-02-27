@@ -108,12 +108,7 @@ func (l *mLexer) NextToken() token.Token {
 	case '<':
 		if l.peek() == '=' {
 			l.advance()
-			if l.peek() == '>' {
-				l.advance()
-				tok = token.CreateOperator("<=>", l.line) // TODO: Remove
-			} else {
-				tok = token.CreateOperator("<=", l.line)
-			}
+			tok = token.CreateOperator("<=", l.line)
 		} else if l.peek() == '-' {
 			l.advance()
 			tok = token.CreateOperator("<-", l.line)

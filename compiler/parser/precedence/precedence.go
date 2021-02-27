@@ -31,7 +31,6 @@ var LookupTable = map[token.Type]int{
 	token.LTE:                Compare,
 	token.GT:                 Compare,
 	token.GTE:                Compare,
-	token.COMP:               Compare,
 	token.And:                Logic,
 	token.Or:                 Logic,
 	token.Range:              Range,

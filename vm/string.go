@@ -110,21 +110,6 @@ var stringInstanceMethods = []*BuiltinMethodObject{
 		},
 	},
 	{
-		// TODO: Remove
-		Name: "<=>",
-		Fn: func(receiver Object, t *Thread, args []Object) Object {
-
-			right, ok := args[0].(StringObject)
-			if !ok {
-				return t.vm.InitErrorObject(t, errors.TypeError, errors.WrongArgumentTypeFormat, classes.StringClass, args[0].Class().Name)
-			}
-
-			left := receiver.(StringObject)
-			// TODO: Find a way of not using strings.Compare
-			return IntegerObject(strings.Compare(string(left), string(right)))
-		},
-	},
-	{
 		Name: "!=",
 		Fn: func(receiver Object, t *Thread, args []Object) Object {
 

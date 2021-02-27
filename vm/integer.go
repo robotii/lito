@@ -185,42 +185,6 @@ var integerInstanceMethods = []*BuiltinMethodObject{
 		Primitive: true,
 	},
 	{
-		// TODO: Remove
-		Name: "<=>",
-		Fn: func(receiver Object, t *Thread, args []Object) Object {
-			rightObject := args[0]
-
-			switch rightObject := rightObject.(type) {
-			case IntegerObject:
-				leftValue := int(receiver.(IntegerObject))
-				rightValue := int(rightObject)
-
-				if leftValue < rightValue {
-					return IntegerObject(-1)
-				}
-				if leftValue > rightValue {
-					return IntegerObject(1)
-				}
-
-				return IntegerObject(0)
-			case FloatObject:
-				leftValue := float64(receiver.(IntegerObject))
-				rightValue := float64(rightObject)
-
-				if leftValue < rightValue {
-					return IntegerObject(-1)
-				}
-				if leftValue > rightValue {
-					return IntegerObject(1)
-				}
-				return IntegerObject(0)
-			default:
-				return t.vm.InitErrorObject(t, errors.TypeError, errors.WrongArgumentTypeFormat, "Numeric", rightObject.Class().Name)
-			}
-		},
-		Primitive: true,
-	},
-	{
 		Name: "float",
 		Fn: func(receiver Object, t *Thread, args []Object) Object {
 			if len(args) != 0 {

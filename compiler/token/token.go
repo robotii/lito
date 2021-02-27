@@ -43,7 +43,6 @@ const (
 	LTE   = "<="
 	GT    = ">"
 	GTE   = ">="
-	COMP  = "<=>" // TODO: Remove
 
 	Comma     = ","
 	Semicolon = ";"
@@ -139,12 +138,11 @@ var operators = map[string]Type{
 	"%":   Modulo,
 	"&":   Amp,
 
-	"=~":  Match,
-	"<":   LT,
-	"<=":  LTE,
-	">":   GT,
-	">=":  GTE,
-	"<=>": COMP, // TODO: Remove
+	"=~": Match,
+	"<":  LT,
+	"<=": LTE,
+	">":  GT,
+	">=": GTE,
 
 	"==":  Eq,
 	"!=":  NotEq,

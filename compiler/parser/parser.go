@@ -105,7 +105,6 @@ func New(l lexer.Lexer, mode Mode) *Parser {
 	p.registerInfix(token.LTE, p.parseInfixExpression)
 	p.registerInfix(token.GT, p.parseInfixExpression)
 	p.registerInfix(token.GTE, p.parseInfixExpression)
-	p.registerInfix(token.COMP, p.parseInfixExpression)
 	p.registerInfix(token.And, p.parseInfixExpression)
 	p.registerInfix(token.Or, p.parseInfixExpression)
 	p.registerInfix(token.OrEq, p.parseAssignExpression)
