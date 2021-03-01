@@ -76,6 +76,7 @@ var standardLibraries = map[string]func(*VM){
 
 // VM represents a stack based virtual machine.
 type VM struct {
+	// mainObj is the root object in which all code executes
 	mainObj     *RObject
 	mainThread  Thread
 	objectClass *RClass
@@ -83,14 +84,18 @@ type VM struct {
 	// fileDir indicates executed file's directory
 	fileDir string
 	// args are command line arguments
-	args        []string
+	args []string
+	// projectRoot holds the root directory of the project
 	projectRoot string
 
-	// libPath indicates the libraries path. Defaults to `<projectRoot>/lib`, unless
-	// DefaultLibPath is specified.
-	libPath     string
-	mode        parser.Mode
-	libFiles    []string
+	// libPath indicates the libraries path. Defaults to `<projectRoot>/lib`,
+	// unless DefaultLibPath is specified.
+	libPath string
+	// mode holds the parsing mode, as parsing varies when in the REPL
+	mode     parser.Mode
+	libFiles []string
+	// threadCount holds the count of threads that have been created.
+	// It is never reset.
 	threadCount int64
 }
 
