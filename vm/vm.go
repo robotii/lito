@@ -77,22 +77,25 @@ var standardLibraries = map[string]func(*VM){
 // VM represents a stack based virtual machine.
 type VM struct {
 	// mainObj is the root object in which all code executes
-	mainObj     *RObject
-	mainThread  Thread
+	mainObj *RObject
+	// mainThread contains the main thread of the vm
+	mainThread Thread
+	// objectClass holds a reference to the Object class, the root of the class hierarchy
 	objectClass *RClass
-	errorClass  *RClass
+	// errorClass the class of all errors
+	errorClass *RClass
 	// fileDir indicates executed file's directory
 	fileDir string
 	// args are command line arguments
 	args []string
 	// projectRoot holds the root directory of the project
 	projectRoot string
-
 	// libPath indicates the libraries path. Defaults to `<projectRoot>/lib`,
 	// unless DefaultLibPath is specified.
 	libPath string
 	// mode holds the parsing mode, as parsing varies when in the REPL
-	mode     parser.Mode
+	mode parser.Mode
+	// libFiles list of files to be loaded by the vm after initialisation
 	libFiles []string
 	// threadCount holds the count of threads that have been created.
 	// It is never reset.
@@ -177,6 +180,7 @@ func (vm *VM) ExecInstructions(sets []*bytecode.InstructionSet, fn string) {
 func (vm *VM) initMainObj() *RObject {
 	obj := vm.objectClass.initInstance()
 
+	// TODO: Check if this is still a problem
 	// TODO: Fix this as we have broken constants being on the ObjectClass
 	/*obj.class = vm.InitClass(fmt.Sprintf("#<Class:%s>", obj.ToString(&vm.mainThread))).
 		InstanceMethods(mainObjMetaMethods)
