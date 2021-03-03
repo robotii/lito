@@ -191,8 +191,11 @@ func (as *ArgSet) setArg(index int, name string, argType uint8) {
 // Inspect returns a string representation of the InstructionSet
 func (is *InstructionSet) Inspect() string {
 	var out strings.Builder
-
-	out.WriteString("Constants\n---------\n")
+	out.WriteString("Instruction Set\n---------------\nName: ")
+	out.WriteString(is.Name)
+	out.WriteString("\nType: ")
+	out.WriteString(is.Type)
+	out.WriteString("\nConstants\n---------\n")
 	for i, constant := range is.Constants {
 		out.WriteString(fmt.Sprintf("%v: %v\n", i, constant))
 	}
