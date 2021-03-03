@@ -36,22 +36,22 @@ type Error struct {
 
 // IsEOF checks if error is end of file error
 func (e *Error) IsEOF() bool {
-	return e.ErrType == EndOfFileError
+	return e != nil && e.ErrType == EndOfFileError
 }
 
 // IsUnexpectedEnd checks if error is unexpected "}" error
 func (e *Error) IsUnexpectedEnd() bool {
-	return e.ErrType == UnexpectedEndError
+	return e != nil && e.ErrType == UnexpectedEndError
 }
 
 // IsUnexpectedEOF check if error is unexpected EOF token
 func (e *Error) IsUnexpectedEOF() bool {
-	return e.ErrType == UnexpectedEOFError
+	return e != nil && e.ErrType == UnexpectedEOFError
 }
 
 // IsUnexpectedToken checks if error is unexpected token error
 func (e *Error) IsUnexpectedToken() bool {
-	return e.ErrType == UnexpectedTokenError
+	return e != nil && e.ErrType == UnexpectedTokenError
 }
 
 // IsUnexpectedSwitch checks if error is a token error for 'switch' statement

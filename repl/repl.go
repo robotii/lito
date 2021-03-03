@@ -199,7 +199,7 @@ reset:
 		}
 
 		if repl.sm.Is(waiting) {
-			if repl.indent <= 0 {
+			if repl.indent <= 0 && !pErr.IsUnexpectedEOF() {
 				repl.sm.State(waitEnded)
 			} else { // Still indented
 				oprintln(switchPrompt(repl.indent) + indent(repl.prevIndent) + repl.line)
