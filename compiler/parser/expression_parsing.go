@@ -43,7 +43,6 @@ func (p *Parser) parseAssignExpression(v ast.Expression) ast.Expression {
 				Receiver:  v.Receiver,
 			}
 		}
-		// TODO: Test this!
 		// Handle other call assignments
 		return &ast.CallExpression{
 			BaseNode:  &ast.BaseNode{},
@@ -70,7 +69,7 @@ func (p *Parser) parseAssignExpression(v ast.Expression) ast.Expression {
 	exp.Token = tok
 	exp.Value = value
 
-	//event, _ := events.EventTable[oldState]
+	// Restore the original state
 	p.fsm.State(oldState)
 
 	return exp

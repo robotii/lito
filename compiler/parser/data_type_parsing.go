@@ -75,7 +75,6 @@ func (p *Parser) parseHashPairs() map[string]ast.Expression {
 	}
 
 	if !p.expectPeek(token.RBrace) {
-		// TODO: Error here
 		return nil
 	}
 
