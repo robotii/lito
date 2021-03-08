@@ -27,7 +27,7 @@ func (e Environment) names() []string {
 }
 
 func (e Environment) copy() Environment {
-	newEnv := Environment{}
+	newEnv := make(Environment, len(e))
 	for key, value := range e {
 		newEnv[key] = value
 	}
