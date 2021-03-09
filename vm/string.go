@@ -883,5 +883,5 @@ func reverseString(str string) string {
 		// Skip ahead the number of characters we processed
 		i = j
 	}
-	return (string(targetRunes[start:]))
+	return string(targetRunes[start:])
 }
