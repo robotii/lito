@@ -50,6 +50,5 @@ func (ro *RObject) Value() interface{} {
 
 // EqualTo returns if the RObject is equal to another object
 func (ro *RObject) EqualTo(with Object) bool {
-	// TODO: A more sensible implementation here, please!
-	return false
+	return ro == with
 }
