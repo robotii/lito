@@ -566,12 +566,13 @@ var arrayInstanceMethods = []*BuiltinMethodObject{
 	{
 		Name: "map",
 		Fn: func(receiver Object, t *Thread, args []Object) Object {
-			arr := receiver.(*ArrayObject)
-			var elements = make([]Object, len(arr.Elements))
 			blockFrame := t.GetBlock()
 			if blockFrame == nil {
 				return t.vm.InitErrorObject(t, errors.InternalError, errors.CantYieldWithoutBlockFormat)
 			}
+
+			arr := receiver.(*ArrayObject)
+			var elements = make([]Object, len(arr.Elements))
 
 			if blockFrame.IsEmpty() {
 				for i := 0; i < len(arr.Elements); i++ {
