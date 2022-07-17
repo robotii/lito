@@ -22,3 +22,6 @@
 
 # Project specific files
 /lito
+
+# MacOS
+.DS_Store
