@@ -38,10 +38,7 @@ var blockInstanceMethods = []*BuiltinMethodObject{
 			c := block.asCallFrame(t)
 			// Deal with a block being passed
 			blockFrame := t.GetBlock()
-			if blockFrame != nil {
-				return t.YieldWithBlockArgument(c, blockFrame, args...)
-			}
-			return t.Yield(c, args...)
+			return t.YieldWithBlockArgument(c, blockFrame, args...)
 		},
 	},
 }
