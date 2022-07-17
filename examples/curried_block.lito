@@ -14,7 +14,7 @@ class CurriedBlock {
 }
 
 a = CurriedBlock.new(1.2,2,3) {|a,b,c,d,e,f|
-    println a,b,c,d,e,f
+    println (a,b,c,d,e,f)
 }
 
 a.call(4,5,[1,2,3])
@@ -24,14 +24,14 @@ def curry(*args) {
 }
 
 b = curry("hello", "this", "is") {|a,b,c,d,e,f|
-    println a,b,c,d,e,f
+    println (a,b,c,d,e,f)
 }
 b.call "a message", "for", "you"
 
 a = Block.new {
    try {
         yield
-    } catch (Error) {|e| println e.message, "\n", e.stack }
+    } catch (Error) {|e| println (e.message, "\n", e.stack) }
 }
 
 c = a.call {
@@ -39,10 +39,10 @@ c = a.call {
     raise (Error.new "hello")
 }
 
-println c
+println (c)
 
 b = curry("hello", "this", "is") {|a,b,c,d,e,f|
-    println a,b,c,d,e,f
+    println (a,b,c,d,e,f)
     yield
 }
 

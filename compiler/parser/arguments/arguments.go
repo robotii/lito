@@ -29,7 +29,6 @@ var Tokens = map[token.Type]bool{
 	token.False:            true,
 	token.Nil:              true,
 	token.InstanceVariable: true,
-	token.Ident:            true,
 	token.Constant:         true,
 	token.LBrace:           true,
 	token.Self:             true,

@@ -142,6 +142,6 @@ class Example {
     } else {
       output += " (PASS)"
     }
-    println output
+    println(output)
   }
 }

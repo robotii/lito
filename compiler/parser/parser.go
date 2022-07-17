@@ -123,6 +123,7 @@ func New(l lexer.Lexer, mode Mode) *Parser {
 	p.registerInfix(token.Pipe, p.parseInfixExpression)
 	p.registerInfix(token.Catch, p.parseOperatorMethodCall)
 	p.registerInfix(token.Finally, p.parseOperatorMethodCall)
+	p.registerInfix(token.Ident, p.parseOperatorMethodCall)
 
 	return p
 }

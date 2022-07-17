@@ -37,8 +37,8 @@ class JSONObject {
 }
 
 class Application < JSONObject {
-    property field(:name, "appName")
-    property field(:size, "applicationSize")
+    property (field(:name, "appName"))
+    property (field(:size, "applicationSize"))
 
     def init { @type = self.class.name}
 }
@@ -47,9 +47,9 @@ app = Application.new
 app.name = "Application 1"
 app.size = 3
 
-println app.json
+println (app.json)
 
-app2 = Application.parse_json app.json
+app2 = Application.parse_json (app.json)
 app2.size = 4
 
-println app2.json
+println (app2.json)

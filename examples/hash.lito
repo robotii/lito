@@ -3,12 +3,12 @@ a = {
     goodbye: "hello"
 }
 
-println a
-println a.json
+println (a)
+println (a.json)
 
 b = {
     "hello": "goodbye",
     "goodbye": "hello"
 }
 
-println a == b
+println (a == b)

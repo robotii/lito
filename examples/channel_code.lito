@@ -7,7 +7,7 @@ go {
 
 c <- (Block.new {|a|
     println "This has gone through a channel"
-    println a, c
+    println (a, c)
 })
 
 sleep 2

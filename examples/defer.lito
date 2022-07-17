@@ -1,11 +1,11 @@
 def xxx {
   defer &block!
-  println "1st"
+  println ("1st")
   33
 }
 
-a = xxx {println "2nd"}
-println a
+a = xxx {println ("2nd")}
+println (a)
 
 def yyy(n) {
   print "n(init)=", n, "\n"
@@ -41,7 +41,7 @@ try {
   zzz
 } catch(Error) {|e|
   println "Error caught!"
-  println e.stack
+  println (e.stack)
 }
 
 def aaa {
@@ -52,11 +52,11 @@ def aaa {
 }
 
 try {
-  println aaa
+  println (aaa)
 } catch(Error) {|e|
   println "Error caught!"
-  println e.message
-  println e.stack
+  println (e.message)
+  println (e.stack)
 }
 
 raise Error # The error should have the correct stack trace

@@ -5,7 +5,7 @@ e = Error.new "test error"
 a = Error.new "test 2 error"
 
 # Error is not raised
-println a.message
+println (a.message)
 
 # Error is raised here
 raise e

@@ -23,7 +23,7 @@ try {
     println("raising error")
     raise InternalError.new "Error Message"
 } catch (Error) {|e|
-    println e.message, e.stack, e.type
+    println (e.message, e.stack, e.type)
     println "Caught error!"
 }
 
@@ -38,7 +38,7 @@ try {
     raise e
   }
 } catch {|e|
-    println e.message, e.stack, e.type
+    println (e.message, e.stack, e.type)
 }
 
 x = try {
@@ -47,4 +47,4 @@ x = try {
     e.cancel
 }
 
-println x.class # => Error
+println (x.class) # => Error

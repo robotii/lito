@@ -27,9 +27,11 @@ func (p *Parser) parseCallExpressionWithoutReceiver(receiver ast.Expression) ast
 		exp.Arguments = p.parseCallArgumentsWithParens()
 	} else if p.peekTokenIs(token.LBrace) && p.acceptBlock && p.peekTokenAtSameLine() {
 		exp.Arguments = []ast.Expression{}
-	} else {
+	} else if arguments.Tokens[p.peekToken.Type] && p.peekTokenAtSameLine() {
 		p.nextToken()
 		exp.Arguments = p.parseCallArguments()
+	} else {
+		exp.Arguments = []ast.Expression{}
 	}
 
 	p.fsm.State(oldState)
@@ -111,6 +113,10 @@ func (p *Parser) parseCallArgumentsWithParens() []ast.Expression {
 
 func (p *Parser) parseCallArguments() []ast.Expression {
 	args := []ast.Expression{}
+
+	if p.curTokenIs(token.EOF) {
+		return args
+	}
 
 	args = append(args, p.parseExpression(precedence.Normal))
 
