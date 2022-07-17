@@ -152,11 +152,13 @@ var fileClassMethods = []*BuiltinMethodObject{
 			if !ok {
 				return f
 			}
-			defer file.File.Close()
 			blockFrame := t.GetBlock()
 			if blockFrame == nil {
-				return receiver
+				return f
 			}
+			defer func(File *os.File) {
+				_ = File.Close()
+			}(file.File)
 			return t.Yield(blockFrame, file)
 		},
 	},
