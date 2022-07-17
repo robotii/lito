@@ -443,7 +443,7 @@ var arrayInstanceMethods = []*BuiltinMethodObject{
 			}
 
 			if arrLength > int(arg) {
-				return InitArrayObject(arr.Elements[:int(arg)])
+				return InitArrayObject(arr.Elements[:arg])
 			}
 			return arr
 		},
@@ -790,7 +790,7 @@ var arrayInstanceMethods = []*BuiltinMethodObject{
 				} else if int(index) < 0 {
 					elements[i] = arr.Elements[len(arr.Elements)+int(index)]
 				} else {
-					elements[i] = arr.Elements[int(index)]
+					elements[i] = arr.Elements[index]
 				}
 			}
 
