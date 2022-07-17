@@ -45,7 +45,7 @@ func New(input string) Lexer {
 
 // NextToken lex and return the next token
 func (l *mLexer) NextToken() token.Token {
-
+nextToken:
 	var tok token.Token
 	l.resetNosymbol()
 	l.skipWhitespace()
@@ -176,7 +176,8 @@ func (l *mLexer) NextToken() token.Token {
 	case '%':
 		tok = token.CreateOperator("%", l.line)
 	case '#':
-		return token.Create(token.Comment, l.readComment(), l.line)
+		l.readComment()
+		goto nextToken
 	case '&':
 		if l.peek() == '&' {
 			l.advance()
