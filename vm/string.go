@@ -678,7 +678,7 @@ func (s StringObject) Value() interface{} {
 
 // ToString returns the object's name as the string format
 func (s StringObject) ToString(t *Thread) string {
-	return fmt.Sprintf(`%s`, string(s))
+	return string(s)
 }
 
 // Inspect wraps ToString with double quotes
@@ -716,8 +716,8 @@ func (s StringObject) equal(e StringObject) bool {
 func StringObjectSplit(vm *VM, s string, sep string) *ArrayObject {
 	arr := strings.Split(s, sep)
 	elements := make([]Object, len(arr))
-	for i := 0; i < len(arr); i++ {
-		elements[i] = StringObject(arr[i])
+	for i, str := range arr {
+		elements[i] = StringObject(str)
 	}
 	return InitArrayObject(elements)
 }
@@ -727,19 +727,19 @@ func (s StringObject) Class() *RClass {
 	return stringClass
 }
 
-// GetVariable ...
+// GetVariable does nothing as Strings cannot have variables
 func (s StringObject) GetVariable(string) (Object, bool) {
 	return nil, false
 }
 
-// SetVariable ...
+// SetVariable does nothing as Strings cannot have variables
 func (s StringObject) SetVariable(n string, o Object) Object {
 	return o
 }
 
-// FindLookup ...
+// FindLookup returns the lookup! method for a StringObject, if any
 func (s StringObject) FindLookup(searchAncestor bool) (method Object) {
-	method, _ = s.Class().Methods[lookupMethod]
+	method = s.Class().Methods[lookupMethod]
 	if method == nil && searchAncestor {
 		method = s.FindMethod(lookupMethod, false)
 	}
@@ -842,16 +842,16 @@ func strEachChar(receiver Object, t *Thread, args []Object) Object {
 		return t.vm.InitErrorObject(t, errors.InternalError, errors.CantYieldWithoutBlockFormat)
 	}
 
-	str := string(receiver.(StringObject))
 	if blockFrame.IsEmpty() {
-		return StringObject(str)
+		return receiver
 	}
 
-	for _, char := range []rune(str) {
+	str := string(receiver.(StringObject))
+	for _, char := range str {
 		t.Yield(blockFrame, StringObject(char))
 	}
 
-	return StringObject(str)
+	return receiver
 }
 
 // reverseString interprets its argument as UTF-8

@@ -255,7 +255,7 @@ func (f FloatObject) SetVariable(string, Object) Object {
 
 // FindLookup ...
 func (f FloatObject) FindLookup(searchAncestor bool) (method Object) {
-	method, _ = f.Class().Methods[lookupMethod]
+	method = f.Class().Methods[lookupMethod]
 
 	if method == nil && searchAncestor {
 		method = f.FindMethod(lookupMethod, false)

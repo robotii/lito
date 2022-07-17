@@ -86,24 +86,24 @@ func (b BooleanObject) equal(e BooleanObject) bool {
 	return b == e
 }
 
-// Class ...
+// Class returns the built-in Boolean class
 func (b BooleanObject) Class() *RClass {
 	return boolClass
 }
 
-// GetVariable ...
+// GetVariable does nothing as Booleans cannot have variables
 func (b BooleanObject) GetVariable(string) (Object, bool) {
 	return nil, false
 }
 
-// SetVariable ...
+// SetVariable does nothing as Booleans cannot have variables
 func (b BooleanObject) SetVariable(n string, o Object) Object {
 	return o
 }
 
 // FindLookup ...
 func (b BooleanObject) FindLookup(searchAncestor bool) (method Object) {
-	method, _ = b.Class().Methods[lookupMethod]
+	method = b.Class().Methods[lookupMethod]
 
 	if method == nil && searchAncestor {
 		method = b.FindMethod(lookupMethod, false)

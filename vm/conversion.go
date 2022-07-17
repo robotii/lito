@@ -22,9 +22,7 @@ func (vm *VM) InitObjectFromGoType(value interface{}) Object {
 
 	case []uint8: // also handles []byte
 		bytes := make([]byte, len(val))
-		for i, b := range val {
-			bytes[i] = b
-		}
+		copy(bytes, val)
 		return StringObject(bytes)
 
 	case string:

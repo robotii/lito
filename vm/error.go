@@ -115,10 +115,10 @@ func (vm *VM) InitErrorObject(t *Thread, errorType string, format string, args .
 	cf := t.callFrameStack.top()
 	sourceLine := t.GetSourceLine()
 
-	switch cf := cf.(type) {
+	switch cfTmp := cf.(type) {
 	case *CallFrame:
 		// If program counter is 0 means we need to trace back to previous call frame
-		if cf.pc == 0 {
+		if cfTmp.pc == 0 {
 			t.callFrameStack.pop()
 			cf, _ = t.callFrameStack.top().(*CallFrame)
 		}
@@ -159,7 +159,7 @@ func (e *Error) storeStackTraces(t *Thread) {
 		// TODO: Show go frames as well
 		cf, ok := frame.(*CallFrame)
 		if ok {
-			sourceLine := cf.sourceLine
+			var sourceLine int
 			insCount := cf.instructionsCount()
 			// If we encounter an empty block, skip it
 			if insCount == 0 {

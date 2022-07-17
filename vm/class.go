@@ -260,7 +260,8 @@ var moduleCommonClassMethods = []*BuiltinMethodObject{
 			}
 
 			// Make a copy of the module
-			module = &*module
+			rClass := *module
+			module = &rClass
 			module.superClass = class.superClass
 			class.superClass = module
 
@@ -291,7 +292,8 @@ var moduleCommonClassMethods = []*BuiltinMethodObject{
 			}
 
 			// Make a copy of the module
-			module = &*module
+			rClass := *module
+			module = &rClass
 			module.superClass = class.superClass
 			class.superClass = module
 
@@ -346,6 +348,24 @@ var moduleCommonClassMethods = []*BuiltinMethodObject{
 			}
 
 			return BooleanObject(receiver.FindMethod(string(arg), false) != nil)
+		},
+	},
+	{
+		Name: "get_method",
+		Fn: func(receiver Object, t *Thread, args []Object) Object {
+			if len(args) != 1 {
+				return t.vm.InitErrorObject(t, errors.ArgumentError, errors.WrongNumberOfArgument, 1, len(args))
+			}
+			arg, ok := args[0].(StringObject)
+			if !ok {
+				return t.vm.InitErrorObject(t, errors.TypeError, errors.WrongArgumentTypeFormat, classes.StringClass, arg.Class().Name)
+			}
+
+			r := receiver.FindMethod(string(arg), false)
+			if r == nil {
+				return NIL
+			}
+			return r
 		},
 	},
 	{
@@ -748,7 +768,7 @@ var classCommonInstanceMethods = []*BuiltinMethodObject{
 
 				return TRUE
 			default:
-				return t.vm.InitErrorObject(t, errors.TypeError, errors.CantRequireNonString, args[0].(Object).Class().Name)
+				return t.vm.InitErrorObject(t, errors.TypeError, errors.CantRequireNonString, args[0].Class().Name)
 			}
 		},
 	},
@@ -1009,10 +1029,10 @@ func (c *RClass) SetMetaClass(m *RClass) {
 func (c *RClass) FindLookup(searchAncestor bool) (method Object) {
 	metaClass := c.MetaClass()
 	if metaClass != nil {
-		method, _ = metaClass.Methods[lookupMethod]
+		method = metaClass.Methods[lookupMethod]
 	}
 	if method == nil {
-		method, _ = c.Class().Methods[lookupMethod]
+		method = c.Class().Methods[lookupMethod]
 	}
 	if method == nil && searchAncestor {
 		method = c.FindMethod(lookupMethod, false)
@@ -1110,8 +1130,7 @@ func (c *RClass) lookupConstantUnderAllScope(constName string) *Pointer {
 	}
 	// Finding constant in superclass means it's out of the scope
 	if c.superClass != nil && c.Name != classes.ObjectClass {
-		constant, _ = c.constants[constName]
-		return constant
+		return c.constants[constName]
 	}
 	return nil
 }

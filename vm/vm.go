@@ -276,9 +276,8 @@ func (vm *VM) CurrentFilePath() string {
 // loadConstant makes sure we don't create a class twice.
 func (vm *VM) loadConstant(name string, isModule bool) *RClass {
 	var c *RClass
-	var ptr *Pointer
 
-	ptr = vm.objectClass.constants[name]
+	ptr := vm.objectClass.constants[name]
 	if ptr != nil {
 		return ptr.Target.(*RClass)
 	}

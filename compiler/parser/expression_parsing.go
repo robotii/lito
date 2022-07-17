@@ -87,18 +87,6 @@ func (p *Parser) parseConstant() ast.Expression {
 	return c
 }
 
-func (p *Parser) parseDotExpression(receiver ast.Expression) ast.Expression {
-	_, ok := receiver.(*ast.IntegerLiteral)
-
-	// When both receiver & caller are integer => Float
-	if ok && p.peekTokenIs(token.Int) {
-		return p.parseFloatLiteral(receiver)
-	}
-
-	// Normal call method expression with receiver
-	return p.parseCallExpressionWithReceiver(receiver)
-}
-
 func (p *Parser) parseExpression(precedence int) ast.Expression {
 	parseFn := p.prefixParseFns[p.curToken.Type]
 	if parseFn == nil {

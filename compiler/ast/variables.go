@@ -20,7 +20,7 @@ type MultiVariableExpression struct {
 
 func (m *MultiVariableExpression) expressionNode() {}
 
-// TokenLiteral returns the token for a multvariable expression
+// TokenLiteral returns the token for a multivariable expression
 func (m *MultiVariableExpression) TokenLiteral() string {
 	return ""
 }

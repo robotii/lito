@@ -47,7 +47,7 @@ const (
 	UndefinedMethod             = "Undefined Method '%+v' for %+v"
 )
 
-// Classes ...
+// Classes a list of error classes to be initialised
 var Classes = [...]string{
 	InternalError,
 	IOError,

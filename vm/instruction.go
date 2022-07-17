@@ -32,6 +32,7 @@ func (t *Thread) execFrame(cf *CallFrame) {
 
 	for cf.pc < insCount {
 		opcode := code[cf.pc]
+		// TODO: find better way of dealing with this
 		t.currentLine = is.SourceMap[cf.pc]
 		cf.pc++
 	retry:
@@ -290,7 +291,6 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			}
 
 			cf.pc = code[cf.pc]
-			break
 
 		case bytecode.Jump:
 			cf.pc = code[cf.pc]
@@ -422,7 +422,8 @@ func (t *Thread) execFrame(cf *CallFrame) {
 				blockIS = nil
 			}
 
-			argSet, ok := is.GetObject(cf.pc).(*bytecode.ArgSet)
+			// We don't want a panic here, nil is fine for argset
+			argSet, _ := is.GetObject(cf.pc).(*bytecode.ArgSet)
 			cf.pc++
 
 			// Handle splatted block as last argument

@@ -5,3 +5,10 @@ a = {
 
 println a
 println a.json
+
+b = {
+    "hello": "goodbye",
+    "goodbye": "hello"
+}
+
+println a == b

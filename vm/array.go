@@ -249,14 +249,11 @@ var arrayInstanceMethods = []*BuiltinMethodObject{
 
 			for _, arg := range args {
 				addAr, ok := arg.(*ArrayObject)
-
 				if !ok {
 					return t.vm.InitErrorObject(t, errors.TypeError, errors.WrongArgumentTypeFormat, classes.ArrayClass, arg.Class().Name)
 				}
 
-				for _, el := range addAr.Elements {
-					arr.Elements = append(arr.Elements, el)
-				}
+				arr.Elements = append(arr.Elements, addAr.Elements...)
 			}
 			return arr
 		},

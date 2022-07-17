@@ -1,9 +1,5 @@
 package vm
 
-import (
-	"fmt"
-)
-
 // BaseObj ...
 type BaseObj struct {
 	class             *RClass
@@ -18,7 +14,7 @@ func BaseObject(c *RClass) BaseObj {
 // Class will return object's class
 func (b *BaseObj) Class() *RClass {
 	if b.class == nil {
-		panic(fmt.Sprint("Object doesn't have class."))
+		panic("Object doesn't have class.")
 	}
 
 	return b.class
@@ -68,7 +64,7 @@ func (b *BaseObj) FindMethod(methodName string, super bool) (method Object) {
 
 // FindLookup ...
 func (b *BaseObj) FindLookup(searchAncestor bool) (method Object) {
-	method, _ = b.class.Methods[lookupMethod]
+	method = b.class.Methods[lookupMethod]
 	if method == nil && searchAncestor {
 		method = b.class.lookupMethod(lookupMethod)
 	}

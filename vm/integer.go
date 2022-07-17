@@ -225,7 +225,6 @@ var integerInstanceMethods = []*BuiltinMethodObject{
 			if blockFrame == nil {
 				// Returns a range object from zero to self - 1
 				return initRangeObject(t.vm, 0, int(receiver.(IntegerObject)), true)
-				//return t.vm.InitErrorObject(t, errors.InternalError, errors.CantYieldWithoutBlockFormat)
 			}
 
 			n := int(receiver.(IntegerObject))
@@ -331,7 +330,7 @@ func (i IntegerObject) SetVariable(n string, o Object) Object {
 
 // FindLookup ...
 func (i IntegerObject) FindLookup(searchAncestor bool) (method Object) {
-	method, _ = i.Class().Methods[lookupMethod]
+	method = i.Class().Methods[lookupMethod]
 
 	if method == nil && searchAncestor {
 		method = i.FindMethod(lookupMethod, false)
