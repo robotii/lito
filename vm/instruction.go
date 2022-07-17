@@ -475,7 +475,7 @@ func (t *Thread) execFrame(cf *CallFrame) {
 			blockFrame := cf.blockFrame
 
 			if cf.blockFrame.ep == cf.ep {
-				blockFrame = cf.blockFrame.ep.blockFrame
+				blockFrame = cf.ep.blockFrame
 			}
 
 			// Check we have a valid block frame still
@@ -503,7 +503,7 @@ func (t *Thread) execFrame(cf *CallFrame) {
 
 			// If the blockframe is from the level up, then reuse that
 			if cf.blockFrame.ep == cf.ep && cf.ep != nil && cf.blockFrame.ep.blockFrame != nil {
-				blockFrame = cf.blockFrame.ep.blockFrame
+				blockFrame = cf.ep.blockFrame
 			}
 
 			// Check again, just to make sure
