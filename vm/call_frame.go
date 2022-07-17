@@ -23,11 +23,18 @@ type baseFrame struct {
 
 type callFrame interface {
 	// Getters
+
+	// Self returns the self object
 	Self() Object
+	// BlockFrame returns the current BlockFrame, if available
 	BlockFrame() *CallFrame
+	// IsBlock shows if we are in a block or not
 	IsBlock() bool
+	// IsRemoved indicates if the current frame has been removed
 	IsRemoved() bool
+	// SourceLine returns the source line that we are currently executing
 	SourceLine() int
+	// FileName returns the filename of the current line we are executing
 	FileName() string
 
 	// Actions
