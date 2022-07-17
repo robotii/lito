@@ -109,7 +109,7 @@ func (cf *baseFrame) FileName() string {
 func (cf *CallFrame) getLocal(index, depth int) (p *Pointer) {
 	lcf := cf
 	for depth > 0 {
-		lcf = lcf.blockFrame.ep
+		lcf = lcf.ep
 		depth--
 	}
 
