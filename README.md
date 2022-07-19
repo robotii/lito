@@ -23,6 +23,14 @@ To start Lito interactively, simply run the following command:
 ./lito
 ```
 
+Alternatively, you can use the following make command to build and run Lito.
+
+```
+make run
+```
+
+This will run the interpreter in interactive mode.
+
 To try out the examples add the path to the file on the command line.
 
 ```
