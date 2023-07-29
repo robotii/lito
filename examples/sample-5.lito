@@ -6,8 +6,8 @@ class Foo {
 
 h = {}
 a = [1, 2, 3]
-f = Foo.new
+f = Foo new
 h["foo"] = f
 h["array"] = a
 
-println(h["foo"].bar + h["array"][2]) #=> 13
+println(h["foo"] bar + h["array"][2]) #=> 13

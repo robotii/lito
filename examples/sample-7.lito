@@ -8,11 +8,11 @@ a = 100
 i = 10
 b = 1000
 
-f = Foo.new
+f = Foo new
 
-f.bar {
+f bar {
   i = 3 * a
-  f.bar {
+  f bar {
     i = 3 + i
   }
 }

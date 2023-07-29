@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -76,7 +75,7 @@ func main() {
 	}
 
 	// Execute files normally
-	dir, _, fileExt := extractFileInfo(fp)
+	dir, fileExt := extractFileInfo(fp)
 
 	switch fileExt {
 	case vm.FileExt:
@@ -95,7 +94,7 @@ func main() {
 		v, err := vm.New(dir, args, configs...)
 		reportErrorAndExit(err)
 
-		fp, err := filepath.Abs(fp)
+		fp, err = filepath.Abs(fp)
 		reportErrorAndExit(err)
 
 		v.ExecInstructions(instructionSets, fp)
@@ -119,16 +118,15 @@ func main() {
 	}
 }
 
-func extractFileInfo(fp string) (dir, filename, fileExt string) {
-	dir, filename = filepath.Split(fp)
+func extractFileInfo(fp string) (dir, fileExt string) {
+	dir, _ = filepath.Split(fp)
 	dir, _ = filepath.Abs(dir)
 	fileExt = strings.TrimPrefix(filepath.Ext(fp), ".")
-	filename = strings.TrimSuffix(filename, "."+fileExt)
 	return
 }
 
 func readFile(filepath string) (file []byte) {
-	file, err := ioutil.ReadFile(filepath)
+	file, err := os.ReadFile(filepath)
 	reportErrorAndExit(err)
 	return
 }

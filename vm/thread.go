@@ -1,7 +1,7 @@
 package vm
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/robotii/lito/compiler"
@@ -50,7 +50,7 @@ func (t *Thread) loadLibrary(libName string) (err error) {
 }
 
 func (t *Thread) execFile(fpath string) (err error) {
-	file, err := ioutil.ReadFile(fpath)
+	file, err := os.ReadFile(fpath)
 	if err != nil {
 		return
 	}

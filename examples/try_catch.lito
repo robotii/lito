@@ -1,12 +1,12 @@
 try {
-    println("Hello")
+    println "Hello"
     3
 } catch {
-    println "catch",44
+    println("catch", 44)
 }
 
 3 catch(Integer) {|i|
-    println("catch: ok, got: " + i.string)
+    println("catch: ok, got: " + i string)
 }
 
 3 catch(Error) {
@@ -20,31 +20,31 @@ try {
 }
 
 try {
-    println("raising error")
-    raise InternalError.new "Error Message"
+    println "raising error" 
+    raise (InternalError new "Error Message")
 } catch (Error) {|e|
-    println (e.message, e.stack, e.type)
+    println (e message, e stack, e type)
     println "Caught error!"
 }
 
 # Nested try catch blocks
 try {
   try {
-    println("raising error")
-    raise InternalError.new "Error Message"
+    println "raising error"
+    raise (InternalError new "Error Message")
   } catch (Error) {|e|
     println "Caught error!"
     # Re-raise the error
     raise e
   }
 } catch {|e|
-    println (e.message, e.stack, e.type)
+    println (e message, e stack, e type)
 }
 
 x = try {
-    raise Error.new
-} catch {|e|
-    e.cancel
+    raise (Error new)
+} catch {|error|
+    error cancel
 }
 
-println (x.class) # => Error
+println (x class) # => Error

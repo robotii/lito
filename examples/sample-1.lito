@@ -10,11 +10,11 @@ class Foo {
 class Bar < Foo {}
 class Baz < Foo {}
 
-bar = Bar.new
-baz = Baz.new
-foo = Foo.new
-bar.set(10)
-baz.set(1)
-foo.set(5)
+bar = Bar new
+baz = Baz new
+foo = Foo new
+bar set(10)
+baz set(1)
+foo set(5)
 
-println(bar.get + baz.get + foo.get) #=> 16
+println(bar get + baz get + foo get) #=> 16

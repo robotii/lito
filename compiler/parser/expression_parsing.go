@@ -413,7 +413,7 @@ func (p *Parser) isParsingAssignment() bool {
 }
 
 func (p *Parser) isKeywordOperator(t token.Token) bool {
-	return t.Type == token.Catch || t.Type == token.Finally || t.Type == token.Ident
+	return t.Type == token.Catch || t.Type == token.Finally || t.Type == token.Ident || t.Type == token.Class
 }
 
 func newInfixExpression(left ast.Expression, operator token.Token, right ast.Expression) *ast.InfixExpression {

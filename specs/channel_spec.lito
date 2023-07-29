@@ -1,0 +1,34 @@
+# This tests the Channel class
+require "spec"
+
+Spec describe Channel {
+    it "can create a channel" {
+        channel = Channel new
+        expect(channel class) to equal(Channel)
+    }
+    it "can send and receive a message to a channel" {
+        channel = Channel new
+        go {
+            channel <- "test"
+        }
+        expect(<-channel) to equal("test")
+    }
+    it "can close a channel" {
+        channel = Channel new
+        # Check channel is not closed
+        expect(channel closed?) to equal(false)
+        channel close
+        expect(channel closed?) to equal(true)
+    }
+    it "can't send to a closed channel" {
+        channel = Channel new
+        channel close
+        try {
+            channel <- "test"
+        } catch { |e|
+            expect(e class) to equal(ChannelCloseError)
+        }
+    }
+}
+
+Spec run

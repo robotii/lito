@@ -8,7 +8,7 @@ def f(from) {
 
 f("direct")
 
-c = Channel.new
+c = Channel new
 
 go {
   println(<- c)

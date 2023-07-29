@@ -12,7 +12,6 @@ type callFrameStack struct {
 }
 
 type baseFrame struct {
-	sync.Mutex
 	self       Object // self points to the object used as receiver
 	isBlock    bool
 	isRemoved  bool // for helping stop the frame execution
@@ -62,6 +61,7 @@ func (cf *goCallFrame) stopExecution() {}
 // CallFrame structure to hold a callframe
 type CallFrame struct {
 	baseFrame
+	sync.Mutex
 	locals         []*Pointer               // local variables
 	ep             *CallFrame               // environment pointer, points to the call frame we want to get locals from
 	instructionSet *bytecode.InstructionSet // bytecode to execute

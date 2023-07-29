@@ -6,21 +6,21 @@ class CurriedBlock {
 
     def call(*args) {
         if block? {
-            @block.call(*(@args + args), &block!)
+            @block call(*(@args + args), &block!)
         } else {
-            @block.call(*(@args + args))
+            @block call(*(@args + args))
         }
     }
 }
 
-a = CurriedBlock.new(1.2,2,3) {|a,b,c,d,e,f|
+a = CurriedBlock new(1.2,2,3) {|a,b,c,d,e,f|
     println (a,b,c,d,e,f)
 }
 
-a.call(4,5,[1,2,3])
+a call(4,5,[1,2,3])
 
 def curry(*args) {
-    CurriedBlock.new(*args, &block!)
+    CurriedBlock new(*args, &block!)
 }
 
 b = curry("hello", "this", "is") {|a,b,c,d,e,f|
@@ -28,15 +28,15 @@ b = curry("hello", "this", "is") {|a,b,c,d,e,f|
 }
 b.call "a message", "for", "you"
 
-a = Block.new {
+a = Block new {
    try {
         yield
     } catch (Error) {|e| println (e.message, "\n", e.stack) }
 }
 
-c = a.call {
+c = a call {
     println "Hello 1"
-    raise (Error.new "hello")
+    raise (Error new "hello")
 }
 
 println (c)
@@ -48,5 +48,5 @@ b = curry("hello", "this", "is") {|a,b,c,d,e,f|
 
 b.call ("a message", "for", "you") {|a|
     println "finished!"
-    raise Error.new "aaargh!"
+    raise (Error.new "aaargh!")
 }

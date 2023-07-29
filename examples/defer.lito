@@ -34,29 +34,29 @@ def zzz {
   defer {
     println "still called"
   }
-  raise Error.new "Error"
+  raise Error new "Error"
 }
 
 try {
   zzz
 } catch(Error) {|e|
   println "Error caught!"
-  println (e.stack)
+  println (e stack)
 }
 
 def aaa {
   defer {
     #raise 3
   }
-  raise Error.new "Error"
+  raise Error new "Error"
 }
 
 try {
   println (aaa)
 } catch(Error) {|e|
   println "Error caught!"
-  println (e.message)
-  println (e.stack)
+  println (e message)
+  println (e stack)
 }
 
 raise Error # The error should have the correct stack trace

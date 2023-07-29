@@ -854,7 +854,7 @@ func (a *ArrayObject) Inspect(t *Thread) string {
 // ToJSON returns the object's elements as the JSON string format
 func (a *ArrayObject) ToJSON(t *Thread) string {
 	var out strings.Builder
-	elements := []string{}
+	elements := make([]string, 0, len(a.Elements))
 	for _, e := range a.Elements {
 		elements = append(elements, e.ToJSON(t))
 	}

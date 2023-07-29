@@ -2,9 +2,9 @@ require "json"
 
 module JSONParser {
     def parse_json(str) {
-        self.new.tap {
+        self new tap {
             JSON.parse(str).each {|k, v|
-                newKey = self.class.vget("@revjson")[k]
+                newKey = self class vget("@revjson")[k]
                 if newKey {
                     vset "@" + newKey, v
                 }
@@ -26,8 +26,8 @@ class JSONObject {
 
     def json() {
         m = {}
-        vars.each {|k, v|
-            newKey = self.class.vget("@jsonmap")[k[1..-1]]
+        vars each {|k, v|
+            newKey = self class vget("@jsonmap")[k[1..-1]]
             if newKey {
                 m[newKey] = v
             }
@@ -43,13 +43,14 @@ class Application < JSONObject {
     def init { @type = self.class.name}
 }
 
-app = Application.new
-app.name = "Application 1"
-app.size = 3
+app = Application new
+app name = "Application 1"
+app size = 3
 
-println (app.json)
 
-app2 = Application.parse_json (app.json)
-app2.size = 4
+println (app json)
 
-println (app2.json)
+app2 = Application parse_json (app json)
+app2 size = 4
+
+println (app2 json)

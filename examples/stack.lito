@@ -4,11 +4,11 @@ class Stack {
     }
 
     def push(x) {
-        @data.push(x)
+        @data push(x)
     }
 
     def pop {
-        @data.pop
+        @data pop
     }
 
     def top {
@@ -17,11 +17,11 @@ class Stack {
 }
 
 s = Stack.new
-s.push(1)
-s.push(2)
-s.push(3)
-s.push(4)
-s.push(10)
-println(s.pop) #=> 10
-println(s.top) #=> 4
-println(s.top) #=> 4
+s push(1)
+s push(2)
+s push(3)
+s push(4)
+s push(10)
+println(s pop) #=> 10
+println(s top) #=> 4
+println(s top) #=> 4

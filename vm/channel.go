@@ -126,6 +126,19 @@ var channelInstanceMethods = []*BuiltinMethodObject{
 		},
 		Primitive: true,
 	},
+	{
+		Name: "closed?",
+		Fn: func(receiver Object, t *Thread, args []Object) Object {
+			if len(args) != 0 {
+				return t.vm.InitErrorObject(t, errors.ArgumentError, errors.WrongNumberOfArgument, 0, len(args))
+			}
+			if receiver.(*ChannelObject).isClosed() {
+				return TRUE
+			}
+			return FALSE
+		},
+		Primitive: true,
+	},
 }
 
 func initChannelClass(vm *VM) *RClass {

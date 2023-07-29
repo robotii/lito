@@ -8,7 +8,7 @@ class Indexer {
     }
 }
 
-i = Indexer.new
+i = Indexer new
 
 println (i[44]) # => 88
 println (i["hello"]) # => hellohello

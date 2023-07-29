@@ -2,7 +2,7 @@ package vm
 
 import (
 	"bufio"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -234,11 +234,11 @@ var fileInstanceMethods = []*BuiltinMethodObject{
 				reader := bufio.NewReader(os.Stdin)
 				result, err = reader.ReadString('\n')
 			} else {
-				f, err = ioutil.ReadFile(file.Name())
+				f, err = os.ReadFile(file.Name())
 				result = string(f)
 			}
 
-			if err != nil {
+			if err != nil && err != io.EOF {
 				return t.vm.InitErrorObject(t, errors.IOError, err.Error())
 			}
 
