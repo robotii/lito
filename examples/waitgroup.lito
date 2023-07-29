@@ -6,10 +6,10 @@ def f(from) {
   }
 }
 
-c = Channel.new
-wg = WaitGroup.new
+c = Channel new
+wg = WaitGroup new
 
-wg.add 2
+wg add 2
 
 go {
   println(<- c)
@@ -22,14 +22,18 @@ go {
 go {
   println("going")
   c <- 10
-  wg.done
+  wg done
   println("going done")
 }
 
 f("direct")
 
 println "waiting"
-wg.wait
+wg wait
 println "waited"
 
+wg = WaitGroup new
+wg go { sleep(2) ; println "Hello World 2" }
+wg go { sleep(1) ; println "Hello World 1" }
+wg wait
 sleep(2)

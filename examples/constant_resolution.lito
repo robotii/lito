@@ -5,7 +5,7 @@ module Outer {
     ModVal = "mid"
 
     module Inner {
-      println Middle::ModVal, " ", ModVal, " ", Outer::ModVal
+      println(Middle::ModVal, " ", ModVal, " ", Outer::ModVal)
     }
   }
 }

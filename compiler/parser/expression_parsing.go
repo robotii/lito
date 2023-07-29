@@ -107,11 +107,14 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	// If we have parsed an identifier then we need to check for arguments without parentheses
 	if p.curTokenIs(token.Ident) && (p.fsm.Is(states.Normal) || p.fsm.Is(states.ParsingAssignment)) {
 		// Check if the next token can be an argument and is on the same line
-		if arguments.Tokens[p.peekToken.Type] && p.peekTokenAtSameLine() {
+		// or is a brace, and we are able to accept a block
+		if (p.peekToken.Type == token.LBrace ||
+			arguments.Tokens[p.peekToken.Type]) &&
+			p.peekTokenAtSameLine() {
 			if p.peekToken.Type != token.LBrace || p.acceptBlock {
 				method := p.parseIdentifier()
 				leftExp = p.parseCallExpressionWithoutReceiver(method)
-				if !p.isKeywordOperator(p.peekToken) {
+				if !p.isKeywordOperator(p.peekToken) || !p.peekTokenAtSameLine() {
 					return leftExp
 				}
 			}
@@ -159,7 +162,10 @@ func (p *Parser) parseHasBlockExpression() ast.Expression {
 func (p *Parser) parseGroupedExpression() ast.Expression {
 	p.nextToken()
 
+	oldState := p.fsm.Current()
+	p.fsm.State(states.Normal)
 	exp := p.parseExpression(precedence.Normal)
+	p.fsm.State(oldState)
 
 	if !p.expectPeek(token.RParen) {
 		return nil
@@ -240,13 +246,16 @@ func (p *Parser) parseOperatorMethodCall(left ast.Expression) ast.Expression {
 	exp.Receiver = left
 	exp.Method = methodToken.Literal
 
-	if p.curTokenIs(token.LParen) {
+	if p.peekTokenIs(token.LParen) {
+		p.nextToken()
 		exp.Arguments = p.parseCallArgumentsWithParens()
 	} else if p.peekTokenIs(token.LBrace) && p.acceptBlock && p.peekTokenAtSameLine() {
 		exp.Arguments = []ast.Expression{}
-	} else {
+	} else if arguments.Tokens[p.peekToken.Type] && p.peekTokenAtSameLine() {
 		p.nextToken()
 		exp.Arguments = p.parseCallArguments()
+	} else {
+		exp.Arguments = []ast.Expression{}
 	}
 
 	p.fsm.State(oldState)
@@ -404,7 +413,7 @@ func (p *Parser) isParsingAssignment() bool {
 }
 
 func (p *Parser) isKeywordOperator(t token.Token) bool {
-	return t.Type == token.Catch || t.Type == token.Finally
+	return t.Type == token.Catch || t.Type == token.Finally || t.Type == token.Ident || t.Type == token.Class
 }
 
 func newInfixExpression(left ast.Expression, operator token.Token, right ast.Expression) *ast.InfixExpression {

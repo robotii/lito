@@ -50,6 +50,8 @@ var LookupTable = map[token.Type]int{
 	token.Pipe:               Call,
 	token.Catch:              Call,
 	token.Finally:            Call,
+	token.Ident:              Call,
+	token.Class:              Call,
 	token.Assign:             Assign,
 	token.PlusEq:             Assign,
 	token.MinusEq:            Assign,

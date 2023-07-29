@@ -8,7 +8,7 @@ import (
 	"github.com/robotii/lito/vm/errors"
 )
 
-// WaitGroupObject ...
+// WaitGroupObject represents a Golang WaitGroup.
 type WaitGroupObject struct {
 	BaseObj
 	WaitGroup sync.WaitGroup
@@ -72,6 +72,34 @@ var waitGroupInstanceMethods = []*BuiltinMethodObject{
 			return receiver
 		},
 		Primitive: true,
+	},
+	// Create a go method that takes a block and yields to it in a goroutine
+	// This will allow us to do something like:
+	// wg = WaitGroup.new
+	// wg.go { println "Hello World" }
+	// wg.wait
+	{
+		Name: "go",
+		Fn: func(receiver Object, t *Thread, args []Object) Object {
+
+			// Get the receiver as a WaitGroup object
+			wg := receiver.(*WaitGroupObject)
+			// Check if we have a block in the thread
+			block := t.GetBlock()
+			if block == nil {
+				return receiver
+			}
+
+			// Now execute the block in a goroutine
+			wg.WaitGroup.Add(1)
+			go func() {
+				defer wg.WaitGroup.Done()
+				defer func() { recover() }()
+				t.vm.newThread().Yield(block, args...)
+			}()
+			// Return the receiver
+			return receiver
+		},
 	},
 }
 

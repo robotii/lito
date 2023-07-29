@@ -2,12 +2,12 @@
 # and callframes not being discarded
 def block_append {
     if block? {
-        Block.new &block!
+        Block new (&block!)
     }
 }
 
 a = block_append { println 5 }
-a.call
-a.call
-a.call
-a.call
+a call
+a call
+a call
+a call

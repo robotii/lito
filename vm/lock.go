@@ -64,6 +64,18 @@ var lockInstanceMethods = []*BuiltinMethodObject{
 			return receiver
 		},
 	},
+	{
+		Name: "locked?",
+		Fn: func(receiver Object, t *Thread, args []Object) Object {
+			if len(args) != 0 {
+				return t.vm.InitErrorObject(t, errors.ArgumentError, errors.WrongNumberOfArgument, 0, len(args))
+			}
+
+			lockObject := receiver.(*LockObject)
+			return BooleanObject(lockObject.locked)
+		},
+		Primitive: true,
+	},
 }
 
 func initLockObject(vm *VM) *LockObject {

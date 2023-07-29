@@ -20,9 +20,9 @@ class Car {
   }
 }
 
-car = Car.new {|c|
-  c.color = "Red"
-  c.doors = 4
+car = Car new {|c|
+  c color = "Red"
+  c doors = 4
 }
 
-println("My car's color is " + car.color + " and it's got " + car.doors.string + " doors.")
+println("My car's color is " + car color + " and it's got " + car doors string + " doors.")

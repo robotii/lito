@@ -2,7 +2,7 @@ require("./bar")
 
 class Foo {
   def self.bar(x) {
-    Bar.foo {|ten|
+    Bar foo {|ten|
       x * ten
     }
   }

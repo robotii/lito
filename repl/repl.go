@@ -20,10 +20,8 @@ import (
 )
 
 const (
-	prmpt1  = "."
-	prmpt2  = ":"
-	prompt1 = "\033[32m" + prmpt1 + "\033[0m "
-	prompt2 = "\033[34m" + prmpt2 + "\033[0m "
+	prompt1 = "\033[32m.\033[0m "
+	prompt2 = "\033[34m:\033[0m "
 	pad     = "  "
 	echo    = "\033[33m#>\033[0m"
 	redB    = "\033[31m"

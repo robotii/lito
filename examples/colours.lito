@@ -29,4 +29,4 @@ module ANSI {
     def self.reverse_off()  { return "\033[27m"}
 }
 
-println ANSI.red, "hello ", ANSI.blue_bg, ANSI.white,ANSI.reverse, "Blue"
+println ANSI red, "hello ", ANSI blue_bg, ANSI white, ANSI reverse, "Blue"

@@ -20,7 +20,7 @@ class JobPosition {
   }
 }
 
-job = JobPosition.engineer
-job.salary = 10000
-println(job.name) #=> "Engineer"
-println(job.salary) #=> 10000
+job = JobPosition engineer
+job salary = 10000
+println(job name) #=> "Engineer"
+println(job salary) #=> 10000

@@ -9,7 +9,7 @@ const (
 	FloatClass     = "Float"
 	StringClass    = "String"
 	ArrayClass     = "Array"
-	HashClass      = "Hash"
+	HashClass      = "Hash" // TODO: Rename to Map
 	BooleanClass   = "Boolean"
 	NilClass       = "Nil"
 	ChannelClass   = "Channel"

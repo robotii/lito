@@ -17,11 +17,11 @@ class User {
   }
 
   def self.sum_age(user1, user2) {
-      user1.age + user2.age
+      user1 age + user2 age
   }
 }
 
-bob = User.new("Bob", 22)
-carol = User.new("Carol", 440)
-println(User.sum_age(bob, carol)) #=> 462
-bob.say_hi(carol) #=> Bob says hi to Carol
+bob = User new("Bob", 22)
+carol = User new("Carol", 440)
+println(User sum_age(bob, carol)) #=> 462
+bob say_hi(carol) #=> Bob says hi to Carol

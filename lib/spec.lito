@@ -8,7 +8,7 @@ class Spec {
   }
 
   def self.fail {
-    self.instance.fail
+    self instance fail
   }
 
   def fail {
@@ -16,26 +16,26 @@ class Spec {
   }
 
   def self.describe(name) {
-    describes.push Describe.new(name, 0, &block!)
+    describes push (Describe new(name, 0, &block!))
   }
 
   def self.instance {
-    @instance ||= Spec.new
+    @instance ||= (Spec new)
   }
 
   def self.run {
-    instance.run
+    instance run
   }
 
   def self.describes {
-    instance.describes
+    instance describes
   }
 
   def run {
-    @describes.each {|d|
-      d.run
+    @describes each {|describe|
+      describe run
     }
-    System.exit ((!Spec.instance.successful).int)
+    System exit ((!Spec.instance.successful).int)
   }
 }
 
@@ -57,55 +57,56 @@ class Describe {
   }
 
   def before {
-    @before_hooks.push(block!)
+    @before_hooks push(block!)
   }
 
   def after {
-    @after_hooks.push(block!)
+    @after_hooks push(block!)
   }
 
   def describe(name) {
-    describes.push Describe.new(name, @indent + 2, &block!)
+    describes push (Describe new(name, @indent + 2, &block!))
   }
 
   def it(name) {
-    examples.push Example.new(name, @indent + 2, &block!)
+    examples push (Example new(name, @indent + 2, &block!))
   }
 
   def run {
     run_examples
-    describes.each {|d|
-      d.run
+    describes each {|d|
+      d run
     }
   }
 
   def run_examples {
-    println " " * @indent + name.string
-    examples.each {|e|
+    println (" " * @indent + (name string))
+    examples each {|example|
 
-      @before_hooks.each {|before_hook|
-        before_hook.call
+      @before_hooks each {|before_hook|
+        before_hook call
       }
 
-      e.run
+      example run
 
-      @after_hooks.each {|after_hook|
-        after_hook.call
+      @after_hooks each {|after_hook|
+        after_hook call
       }
 
-      e.print_result
+      example print_result
     }
   }
 }
 
 class Example {
-  get :name, :result, :subject
+  get :name, :result, :subject, :inverted
 
   def init(name, indent) {
     @indent = indent
     @name = name
     @result = true
     @block = block!
+    @inverted = false
   }
 
   def expect(subject) {
@@ -113,20 +114,25 @@ class Example {
     self
   }
 
-  def to(expectation) {
-    @result = expectation.call(subject)
+  def to {
+    self
   }
 
-  def not_to(expectation) {
-    @result = !expectation.call(subject)
+  def not {
+    @inverted = !@inverted
+    self
   }
 
-  def eq(expectation) {
-    Block.new {|n|
-      @actual = n
+  def equal(expectation) {
+    Block.new {|value|
+      @actual = value
       @expect = expectation
-      n == expectation
-    }
+      if @inverted {
+        value != expectation
+      } else {
+        value == expectation
+      }
+    } call(subject)
   }
 
   def run {
@@ -134,14 +140,14 @@ class Example {
   }
 
   def print_result {
-    output = String.fmt("%sit \"%s\"", " " * @indent, name.string)
+    output = String fmt("%sit \"%s\"", " " * @indent, name string)
     if !result {
       output += " (FAILED)"
-      output += String.fmt("\n  expect: %s\n  actual: %s", @expect, @actual)
-      Spec.fail
+      output += String fmt("\n  expect: %s\n  actual: %s", @expect, @actual)
+      Spec fail
     } else {
       output += " (PASS)"
     }
-    println output
+    println(output)
   }
 }
