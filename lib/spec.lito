@@ -128,9 +128,9 @@ class Example {
       @actual = value
       @expect = expectation
       if @inverted {
-        n != expectation
+        value != expectation
       } else {
-        n == expectation
+        value == expectation
       }
     } call(subject)
   }
